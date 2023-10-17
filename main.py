@@ -2,6 +2,9 @@ import psycopg2
 import re
 from pdf2image import convert_from_path
 import pytesseract
+from loginPanel import loginPanel
+import sys
+from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout
 
 conn = psycopg2.connect(
     database="postgres",
@@ -10,39 +13,38 @@ conn = psycopg2.connect(
     host="127.0.0.1",
     port="5432"
 )
+def read_transcript():
+    # convert pdf file
+    transcript = convert_from_path('transcript.pdf')
 
-# PDF dosyasını görüntülere dönüştür
-transcript = convert_from_path('transcript.pdf')
+    text = ""
+    for c in transcript:
+        text += pytesseract.image_to_string(c, lang="tur")
+        
+        
+    pattern = r'([A-Z0-9]{6}) \| ([\w\s-]+) \| (\d) \| (\w{2})'
 
-# Her görüntüyü Tesseract ile işle
-text = ""
-for c in transcript:
-    text += pytesseract.image_to_string(c, lang="tur")
+    ders_bilgileri = re.findall(pattern, text)
 
-#print(text)
+    lessons = {}
+    for ders in ders_bilgileri:
+        ders_kodu, ders_adi, akts, harf_notu = ders
+        lessons[ders_adi] = {ders_kodu, akts, harf_notu}
+
+    for k,v in lessons.items():
+        print(k,v)
+
+# PyQt uygulamasını başlat
+app = QApplication(sys.argv)
+
+adminLogin = loginPanel("Yönetici", 10)
+teacherLogin = loginPanel("Hoca", 700)
+studentLogin = loginPanel("Öğrenci", 1250)
 
 
-"""# Ders başlıklarını ve notları bulmak için düzenli ifadeler
-pattern = r'(.+?)(\d+(\.\d+)?)(?:/(\d+(\.\d+)?))?'  # Ders Adı ve Notlar
+adminLogin.show()
+teacherLogin.show()
+studentLogin.show()
 
-matches = re.finditer(pattern, text, re.MULTILINE)
-
-for match in matches:
-    course_name = match.group(1).strip()
-    grade = match.group(2).strip()
-    print(f"Ders: {course_name}, Not: {grade}")"""
-    
-    
-# Ders bilgilerini ayıklamak için düzenli ifade
-pattern = r'([A-Z0-9]{6}) \| ([\w\s-]+) \| (\d) \| (\w{2})'
-
-# Metindeki tüm ders bilgilerini bul
-ders_bilgileri = re.findall(pattern, text)
-
-for ders in ders_bilgileri:
-    ders_kodu, ders_adi, akts, harf_notu = ders
-    print(f"Ders Kodu: {ders_kodu.strip()}")
-    print(f"Ders Adı: {ders_adi.strip()}")
-    print(f"AKTS: {akts.strip()}")
-    print(f"Harf Notu: {harf_notu.strip()}")
-    print()
+# PyQt uygulamasını çalıştır
+sys.exit(app.exec_())

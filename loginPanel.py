@@ -2,8 +2,10 @@ import sys
 from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QWidget, QLineEdit, QPushButton
 from PyQt5.QtGui import QFont
 
-class SamplePanel(QWidget):
-    def __init__(self):
+class loginPanel(QWidget):
+    def __init__(self, text, x):
+        self.text = text + " Giriş Paneli"
+        self.x = x
         super().__init__()
         self.initUI()
 
@@ -14,13 +16,13 @@ class SamplePanel(QWidget):
         
         self.myFont = QFont("Arial", 20)
         self.myFont.setBold(True)
-        self.setWindowTitle('Giriş Paneli')
-        self.move(600, 200)
+        self.setWindowTitle(self.text)
+        self.move(self.x, 200)
         self.setFixedSize(700, 500)
 
          
-        self.lblTitle = QLabel('Giriş Paneli', self)
-        self.lblTitle.move(240, 80)
+        self.lblTitle = QLabel(self.text, self)
+        self.lblTitle.move(220, 80)
         self.lblTitle.setFont(self.myFont)
         self.lblTitle.setStyleSheet("color : white")
 
@@ -61,7 +63,7 @@ class SamplePanel(QWidget):
             
 def main():
     app = QApplication(sys.argv)
-    window = SamplePanel()
+    window = loginPanel()
     window.show()
     sys.exit(app.exec_())
 
