@@ -35,7 +35,7 @@ class SamplePanel(QWidget):
         self.txtUserName.move(300, 180)
         self.txtUserName.resize(200, 30)
         self.txtUserName.setPlaceholderText('Kullanıcı adı girin...')
-        self.txtUserName.setStyleSheet("color : white")
+        self.txtUserName.setStyleSheet("color : black; background-color : white")
         
         self.lblPassword = QLabel('Şifre:', self)
         self.lblPassword.move(240, 280)
@@ -47,7 +47,7 @@ class SamplePanel(QWidget):
         self.txtPassword.move(300, 280)
         self.txtPassword.resize(200, 30)
         self.txtPassword.setPlaceholderText('Şifre girin...')
-        self.txtPassword.setStyleSheet("color : white")
+        self.txtPassword.setStyleSheet("color : black; background-color : white")
     
     
         self.myFont.setPointSize(11)
