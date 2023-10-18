@@ -1,9 +1,11 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QWidget, QLineEdit, QPushButton
 from PyQt5.QtGui import QFont
+from loginPanel import LoginPanel
 
-class SamplePanel(QWidget):
+class AdminPanel(QWidget):
     def __init__(self):
+        
         super().__init__()
         self.initUI()
 
@@ -108,12 +110,17 @@ class SamplePanel(QWidget):
     def start(self):
         for c in self.arr:
             c.setVisible(False)
-            
+def loginAdmin():
+    login = LoginPanel("Yönetici", 10)
+    login.show()
+
 def main():
     app = QApplication(sys.argv)
-    window = SamplePanel()
+    window = AdminPanel()
     window.show()
     sys.exit(app.exec_())
+
+
 
 if __name__ == '__main__':
     main()

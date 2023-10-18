@@ -2,7 +2,7 @@ import sys
 from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QWidget, QLineEdit, QPushButton
 from PyQt5.QtGui import QFont
 
-class loginPanel(QWidget):
+class LoginPanel(QWidget):
     def __init__(self, text, x):
         self.text = text + " Giriş Paneli"
         self.x = x
@@ -63,7 +63,7 @@ class loginPanel(QWidget):
             
 def main():
     app = QApplication(sys.argv)
-    window = loginPanel()
+    window = LoginPanel()
     window.show()
     sys.exit(app.exec_())
 
