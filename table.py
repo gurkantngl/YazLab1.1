@@ -1,41 +1,55 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QMainWindow, QTableWidget, QTableWidgetItem
-from PyQt5.QtCore import Qt  # Qt ifadesini ekleyin
+from PyQt5.QtWidgets import QApplication, QMainWindow, QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget
 
-class DataTable(QMainWindow):
-    def __init__(self, data):
+# Örnek veri
+lessons = [
+    {
+        "ders_kodu": "101",
+        "ders_adi": "Matematik",
+        "ders_statusu": "Aktif",
+        "ogretim_dili": "Türkçe",
+        "AKTS": "4",
+        "not": "A"
+    },
+    {
+        "ders_kodu": "202",
+        "ders_adi": "Fizik",
+        "ders_statusu": "Pasif",
+        "ogretim_dili": "İngilizce",
+        "AKTS": "5",
+        "not": "B"
+    },
+]
+
+class TableExample(QMainWindow):
+    def __init__(self):
         super().__init__()
 
-        self.setWindowTitle('Veri Tablosu')
+        self.setWindowTitle("Ders Tablosu")
         self.setGeometry(100, 100, 600, 400)
 
-        # Veri tablosunu oluştur
-        self.tableWidget = QTableWidget(self)
-        self.tableWidget.setGeometry(50, 50, 500, 300)
-        
-        # Veriyi tabloya ekle
-        self.tableWidget.setColumnCount(len(data[0]))
-        self.tableWidget.setRowCount(len(data))
-        
-        for row_idx, row_data in enumerate(data):
-            for col_idx, cell_value in enumerate(row_data):
-                item = QTableWidgetItem(str(cell_value))
-                item.setFlags(item.flags() ^  Qt.ItemIsEditable)  # Düzenleme yeteneğini devre dışı bırak
-                self.tableWidget.setItem(row_idx, col_idx, item)
+        self.central_widget = QWidget()
+        self.setCentralWidget(self.central_widget)
 
-def main(data):
+        self.tableWidget = QTableWidget()
+        self.tableWidget.setRowCount(len(lessons))
+        self.tableWidget.setColumnCount(len(lessons[0]))
+        self.tableWidget.setHorizontalHeaderLabels(["Ders Kodu", "Ders Adı", "Ders Durumu", "Öğretim Dili", "AKTS", "Not"])
+
+        for row, lesson in enumerate(lessons):
+            for col, value in enumerate(lesson.values()):
+                item = QTableWidgetItem(str(value))
+                self.tableWidget.setItem(row, col, item)
+
+        layout = QVBoxLayout()
+        layout.addWidget(self.tableWidget)
+        self.central_widget.setLayout(layout)
+
+def main():
     app = QApplication(sys.argv)
-    window = DataTable(data)
+    window = TableExample()
     window.show()
     sys.exit(app.exec_())
 
 if __name__ == '__main__':
-    # Örnek bir veri listesi (2D array)
-    data = [
-        ['Ad', 'Soyad', 'Yaş'],
-        ['John', 'Doe', 30],
-        ['Jane', 'Smith', 25],
-        ['Bob', 'Johnson', 40]
-    ]
-
-    main(data)
+    main()

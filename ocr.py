@@ -3,6 +3,7 @@ import re
 
 pdf_file = "transcript.pdf"  # Okumak istediğiniz PDF dosyasının adını belirtin
 
+
 doc = fitz.open(pdf_file)
 
 text = ""
