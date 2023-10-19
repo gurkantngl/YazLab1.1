@@ -177,7 +177,7 @@ class StudentPanel(QWidget):
         
         super().__init__()
         self.initUI()
-        
+        self.table_visible = True
 
     def initUI(self):
         self.arr = []
@@ -206,9 +206,6 @@ class StudentPanel(QWidget):
         self.btn_load_pdf.setStyleSheet("color : black; background-color : white; border-radius: 5px")
         self.btn_load_pdf.clicked.connect(self.load_pdf)
         
-        self.tableWidget = QTableWidget(self)
-        self.tableWidget.setGeometry(10, 100, 800, 700)
-        
         
     #Yerel dosyalardan pdf dosyası seçme    
     def load_pdf(self):
@@ -217,8 +214,20 @@ class StudentPanel(QWidget):
 
         pdf_file, _ = QFileDialog.getOpenFileName(self, 'PDF Dosyasını Seç', '', 'PDF Dosyaları (*.pdf);;Tüm Dosyalar (*)', options=options)
 
+        self.btn_load_pdf.close()
+        self.myFont.setPointSize(11)
+        self.btn_toggle_table = QPushButton(self)
+        self.btn_toggle_table.setText("Transkript Göster")
+        self.btn_toggle_table.setFont(self.myFont)
+        self.btn_toggle_table.setFixedSize(180, 50)
+        self.btn_toggle_table.move(10, 50)
+        self.btn_toggle_table.setStyleSheet("color : black; background-color : white; border-radius: 5px")
+        self.btn_toggle_table.clicked.connect(self.toggle_table)
+        self.btn_toggle_table.setVisible(True)
         self.read_transcript(pdf_file)
 
+    
+    
     # Transkript okuma fonksiyonu
     def read_transcript(self, pdf_file):
 
@@ -263,20 +272,33 @@ class StudentPanel(QWidget):
             except ValueError:
                 pass
         
-        # Transkript okuma işlemi tamamlandıktan sonra panelde tablo olarak gösterilir
-        self.btn_load_pdf.close()
-        self.tableWidget.setStyleSheet("color : black; background-color : white")
-        self.tableWidget.setRowCount(len(lessons))
+        self.transcript_panel = transcript(lessons)
+        self.transcript_panel.show()
+    
+    def toggle_table(self):
+        self.table_visible = not self.table_visible
+        self.transcript_panel.setVisible(self.table_visible)
+    
+class transcript(QWidget):
+    def __init__(self, lessons):
+        super().__init__()
+        
+        self.lessons = lessons
+        self.setWindowTitle("Transkript")
+        self.setGeometry(100, 100, 600, 400)
+        
+        self.tableWidget = QTableWidget(self)
+        self.tableWidget.setGeometry(100, 100, 400, 200)
+        self.tableWidget.setRowCount(len(self.lessons))
         self.tableWidget.setColumnCount(len(lessons[0]))
         self.tableWidget.setHorizontalHeaderLabels(["Ders Kodu", "Ders Adı", "Ders Durumu", "Öğretim Dili", "AKTS", "Not"])
         
-        for row, lesson in enumerate(lessons):
+    
+        for row, lesson in enumerate(self.lessons):
             for col, value in enumerate(lesson.values()):
                 item = QTableWidgetItem(str(value))
-                item.setFlags(item.flags() ^ 2)
                 self.tableWidget.setItem(row, col, item)
-    
-    
+        
 # Veritabanı bağlantısı
 conn = psycopg2.connect(
     database="postgres",
