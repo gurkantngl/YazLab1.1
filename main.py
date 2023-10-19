@@ -1,4 +1,4 @@
-import psycopg2
+#import psycopg2
 import fitz
 import re
 import sys
