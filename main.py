@@ -17,9 +17,7 @@ class LoginPanel(QWidget):
 
     def initUI(self):
         
-        # Panelin arka plan rengini değiştir
         self.setStyleSheet("background-color: rgb(140, 0, 0);")
-        
         self.myFont = QFont("Arial", 20)
         self.myFont.setBold(True)
         self.setWindowTitle(self.text)
@@ -78,8 +76,7 @@ class AdminPanel(QWidget):
 
     def initUI(self):
         self.arr = []
-        
-        # Panelin arka plan rengini değiştir
+             
         self.setStyleSheet("background-color: rgb(140, 0, 0);")
         
         self.myFont = QFont("Arial", 20)
@@ -185,7 +182,6 @@ class StudentPanel(QWidget):
     def initUI(self):
         self.arr = []
         
-        # Panelin arka plan rengini değiştir
         self.setStyleSheet("background-color: rgb(140, 0, 0);")
         
         self.myFont = QFont("Arial", 20)
@@ -214,7 +210,7 @@ class StudentPanel(QWidget):
         self.tableWidget.setGeometry(10, 100, 800, 700)
         
         
-        
+    #Yerel dosyalardan pdf dosyası seçme    
     def load_pdf(self):
         options = QFileDialog.Options()
         options |= QFileDialog.ReadOnly
@@ -225,24 +221,25 @@ class StudentPanel(QWidget):
 
     # Transkript okuma fonksiyonu
     def read_transcript(self, pdf_file):
-        #pdf_file = "transcript.pdf"  # Okumak istediğiniz PDF dosyasının adını belirtin
 
         doc = fitz.open(pdf_file)
 
         text = ""
+        
+        # pdf dosyasını sayfa sayfa dolaşıp texte çevirir
         for page_num in range(doc.page_count):
             page = doc.load_page(page_num)
             text += page.get_text()
 
-        #print(text)
-
+        # text i satırlara böler
         lines = text.split('\n')
-        # Üç büyük harf ve üç rakam ile başlayan satırları ayıklayalım
+        
+        # Üç büyük harf ve üç rakam (Ders Kodu) ile başlayan satırları ayıklar
         ders_kodlari = re.findall(r"^[A-Z]{3}\d{3}$", text, re.MULTILINE)
 
         lessons = []
 
-
+        # textte ders kodunu bulduğu ders ile ilgili bilgileri ayıklar
         for kod in ders_kodlari:
             try:
                 indeks = lines.index(kod)
@@ -266,6 +263,7 @@ class StudentPanel(QWidget):
             except ValueError:
                 pass
         
+        # Transkript okuma işlemi tamamlandıktan sonra panelde tablo olarak gösterilir
         self.btn_load_pdf.close()
         self.tableWidget.setStyleSheet("color : black; background-color : white")
         self.tableWidget.setRowCount(len(lessons))
@@ -277,19 +275,6 @@ class StudentPanel(QWidget):
                 item = QTableWidgetItem(str(value))
                 item.setFlags(item.flags() ^ 2)
                 self.tableWidget.setItem(row, col, item)
-        
-        
-            
-
-        # Ders bilgilerini yazdıralım
-        for lesson in lessons:
-            print("Ders Kodu:", lesson["ders_kodu"])
-            print("Ders Adı:", lesson["ders_adi"])
-            print("Ders Statüsü:", lesson["ders_statusu"])
-            print("Öğretim Dili:", lesson["ogretim_dili"])
-            print("AKTS:", lesson["AKTS"])
-            print("Not:", lesson["not"])
-            print()
     
     
 # Veritabanı bağlantısı
@@ -300,7 +285,6 @@ conn = psycopg2.connect(
     host="127.0.0.1",
     port="5432"
 )
-
 
 
 """# PyQt uygulamasını başlat
