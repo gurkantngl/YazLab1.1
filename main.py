@@ -2,6 +2,7 @@ import psycopg2
 import fitz
 import re
 import sys
+from PyQt5 import QtCore
 from PyQt5.QtCore import QTimer
 from PyQt5.QtWidgets import QApplication, QWidget
 from PyQt5.QtWidgets import (
@@ -145,14 +146,48 @@ class AdminPanel(QWidget):
         self.txtChar.setStyleSheet("color : black; background-color : white")
         self.arr.append(self.txtChar)
 
-        self.lblConfirmNum = QLabel(
-            "Bir hoca kaç öğrencinin talebini onaylayabilir:", self
-        )
-        self.lblConfirmNum.move(45, 300)
-        self.myFont.setPointSize(9)
-        self.lblConfirmNum.setFont(self.myFont)
-        self.lblConfirmNum.setStyleSheet("color : white")
-        self.arr.append(self.lblConfirmNum)
+
+
+        cur = conn.cursor()
+        query = "SELECT ders_adı FROM \"açılanDersler\""
+        cur.execute(query)
+        
+        veriler = cur.fetchall()
+        cur.close()
+        dersler = [veri[0] for veri in veriler]
+        print(dersler)
+
+        # Her bir ders için talep edilebilecek hoca sayısı
+        self.talep_hoca_tablosu = QTableWidget(self)
+        self.talep_hoca_tablosu.move(100, 100)
+        self.talep_hoca_tablosu.setFixedSize(800, 500)
+        self.talep_hoca_tablosu.setVisible(True)
+        self.talep_hoca_tablosu.setStyleSheet("color : black; background-color : white")
+        self.talep_hoca_tablosu.setColumnCount(2)
+        self.talep_hoca_tablosu.setRowCount(len(dersler))
+        # 1 indexli sütunun genişliği 210
+        self.talep_hoca_tablosu.setColumnWidth(0, 220)
+        self.talep_hoca_tablosu.setColumnWidth(1, 210)
+        
+        # Tablo başlıklarının yazı fontunu ayarlama
+        font = QFont()
+        font.setBold(True)
+        font.setPointSize(8)
+        
+        self.talep_hoca_tablosu.setHorizontalHeaderLabels(["Ders Adları", "Talep Edilebilecek Hoca Sayısı"])
+        header = self.talep_hoca_tablosu.horizontalHeader()
+        for i in range(self.talep_hoca_tablosu.columnCount()):
+            header.setFont(font)
+            
+        for row, ders_adi in enumerate(dersler):
+            self.talep_hoca_tablosu.setItem(row, 0, QTableWidgetItem(ders_adi))
+            self.talep_hoca_tablosu.setItem(row, 1, QTableWidgetItem("1"))
+            
+            # Ders adı değiştirilemez
+            self.talep_hoca_tablosu.item(row, 0).setFlags(QtCore.Qt.ItemIsEnabled)
+        
+        self.talep_hoca_tablosu.setVisible(True)
+        
 
         self.txtConfirmNum = QLineEdit(self)
         self.txtConfirmNum.move(370, 300)
@@ -454,7 +489,7 @@ def login_check(panel, table, txtUserName):
     cur.execute(query)
     
     results = cur.fetchall()
-    
+    cur.close()
     
     return results
 
