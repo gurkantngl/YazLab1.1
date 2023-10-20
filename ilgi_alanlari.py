@@ -15,5 +15,5 @@ ilgi_alanlari.add("Doğal Dil İşleme")
 ilgi_alanlari.add("Bilgisayarlı Görü")
 ilgi_alanlari.add("Modern C++")
 ilgi_alanlari.add("Kriptoloji")
-
+print("len: ", len(ilgi_alanlari))
 print(ilgi_alanlari)

@@ -1,4 +1,4 @@
-#import psycopg2
+import psycopg2
 import fitz
 import re
 import sys
@@ -20,13 +20,15 @@ from PyQt5.QtGui import QFont
 
 # Giriş Paneli
 class LoginPanel(QWidget):
-    def __init__(self, text, x):
+    def __init__(self, text, x, txtUserName):
+        self.textUser = txtUserName
         self.text = text + " Giriş Paneli"
         self.x = x
         super().__init__()
         self.initUI()
 
     def initUI(self):
+        
         self.setStyleSheet("background-color: rgb(140, 0, 0);")
         self.myFont = QFont("Arial", 20)
         self.myFont.setBold(True)
@@ -39,16 +41,16 @@ class LoginPanel(QWidget):
         self.lblTitle.setFont(self.myFont)
         self.lblTitle.setStyleSheet("color : white")
 
-        self.lblUserName = QLabel("Kullanıcı Adı:", self)
-        self.lblUserName.move(170, 180)
-        self.myFont.setPointSize(12)
+        self.lblUserName = QLabel(self.textUser + ": ", self)
+        self.lblUserName.move(150, 180)
+        self.myFont.setPointSize(10)
         self.lblUserName.setFont(self.myFont)
         self.lblUserName.setStyleSheet("color : white")
 
         self.txtUserName = QLineEdit(self)
         self.txtUserName.move(300, 180)
         self.txtUserName.resize(200, 30)
-        self.txtUserName.setPlaceholderText("Kullanıcı adı girin...")
+        self.txtUserName.setPlaceholderText(self.textUser + " girin...")
         self.txtUserName.setStyleSheet("color : black; background-color : white")
 
         self.lblPassword = QLabel("Şifre:", self)
@@ -73,6 +75,14 @@ class LoginPanel(QWidget):
             "color : black; background-color : white; border-radius: 5px"
         )
 
+        
+        self.lblIncorrect = QLabel("Hatalı Giriş!", self)
+        self.lblIncorrect.move(310, 410)
+        self.lblIncorrect.setFont(self.myFont)
+        self.lblIncorrect.setStyleSheet("color : white")
+        self.lblIncorrect.setVisible(False)
+        
+        
 
 # Yönetici Paneli
 class AdminPanel(QWidget):
@@ -169,7 +179,7 @@ class AdminPanel(QWidget):
         self.btnStart = QPushButton(self)
         self.btnStart.setText("1. Aşamayı başlat")
         self.btnStart.setFont(self.myFont)
-        self.btnStart.clicked.connect(self.start)
+        #self.btnStart.clicked.connect(self.start)
         self.btnStart.setFixedSize(180, 50)
         self.btnStart.move(275, 440)
         self.btnStart.setStyleSheet(
@@ -352,7 +362,36 @@ class StudentPanel(QWidget):
         self.transcript_panel.setVisible(self.table_visible)
 
 
+# Hoca Paneli
+class TeacherPanel(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.initUI()
+        self.table_visible = True
 
+    def initUI(self):
+        self.arr = []
+
+        self.setStyleSheet("background-color: rgb(140, 0, 0);")
+
+        self.myFont = QFont("Arial", 20)
+        self.myFont.setBold(True)
+        self.setWindowTitle("Hoca Paneli")
+        self.move(600, 200)
+        self.setFixedSize(1280, 720)
+
+        self.lblTitle = QLabel("Hoca Paneli", self)
+        self.lblTitle.move(10, 10)
+        self.myFont.setPointSize(12)
+        self.lblTitle.setFont(self.myFont)
+        self.lblTitle.setStyleSheet("color : white")
+
+
+
+    
+    
+    
+    
 
 class Transcript(QWidget):
     def __init__(self, lessons):
@@ -393,32 +432,76 @@ conn = psycopg2.connect(
 # PyQt uygulamasını başlat
 app = QApplication(sys.argv)
 
-loginStudentPanel = LoginPanel("Öğrenci", 1250)
-student_panel = StudentPanel()
+loginStudentPanel = LoginPanel("Öğrenci", 1250, "Öğrenci Numarası")
+loginTeacherPanel = LoginPanel("Hoca", 700, "Sicil Numarası")
+loginAdminPanel = LoginPanel("Yönetici", 10, "Kullanıcı Adı")
+
 loginStudentPanel.show()
-# loginTeacherPanel = LoginPanel("Hoca", 700)
-# loginAdminPanel = LoginPanel("Yönetici", 10)
-# loginAdminPanel.show()
-# loginTeacherPanel.show()
+loginTeacherPanel.show()
+loginAdminPanel.show()
+
+
+student_panel = StudentPanel()
+teacher_panel = TeacherPanel()
+admin_panel = AdminPanel()
+
+def login_check(panel, table, txtUserName):
+    userName = panel.txtUserName.text()
+    password = panel.txtPassword.text()
+    
+    cur = conn.cursor()
+    query = f"SELECT * FROM {table} WHERE {txtUserName} = '{userName}' AND şifre = '{password}'"
+    cur.execute(query)
+    
+    results = cur.fetchall()
+    
+    
+    return results
 
 
 def login_student():
-    loginStudentPanel.setVisible(False)
+    results = login_check(loginStudentPanel,"ogrenci", "ogrenci_no")
+    if len(results):
+        student_panel.show()
+        loginStudentPanel.setVisible(False)
+    
+    else:
+        loginStudentPanel.lblIncorrect.setVisible(True)
+        
+        loginStudentPanel.txtUserName.setText("")
+        loginStudentPanel.txtPassword.setText("")
 
-    student_panel.show()
 
-
-"""
 def login_teacher():
-    print("Butona basıldı")
+    results = login_check(loginTeacherPanel, "hoca", "sicil_numarası")
+    if len(results):
+        teacher_panel.show()
+        loginTeacherPanel.setVisible(False)
+    
+    else:
+        loginTeacherPanel.lblIncorrect.setVisible(True)
+        
+        loginTeacherPanel.txtUserName.setText("")
+        loginTeacherPanel.txtPassword.setText("")
+
 
 def login_admin():
-    print("Butona basıldı")
-"""
+    results = login_check(loginAdminPanel, "yonetici", "kullanıcı_adı")
+    if len(results):
+        admin_panel.show()
+        loginAdminPanel.setVisible(False)
+    
+    else:
+        loginAdminPanel.lblIncorrect.setVisible(True)
+        
+        loginAdminPanel.txtUserName.setText("")
+        loginAdminPanel.txtPassword.setText("")
+
+
 
 loginStudentPanel.btnLogIn.clicked.connect(login_student)
-# loginTeacherPanel.btnLogIn.clicked.connect(login_teacher)
-# loginAdminPanel.btnLogIn.clicked.connect(login_admin)
+loginTeacherPanel.btnLogIn.clicked.connect(login_teacher)
+loginAdminPanel.btnLogIn.clicked.connect(login_admin)
 
 sys.exit(app.exec_())
 
