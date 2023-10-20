@@ -150,6 +150,18 @@ class AdminPanel(QWidget):
         self.arr.append(self.txtChar)
 
 
+        self.myFont.setPointSize(9)
+        self.btntalep_hoca = QPushButton(self)
+        self.btntalep_hoca.clicked.connect(self.talep_sayilari_onay)
+        self.btntalep_hoca.setText("Talep Sayılarını Onayla")
+        self.btntalep_hoca.setFont(self.myFont)
+        self.btntalep_hoca.setFixedSize(180, 50)
+        self.btntalep_hoca.move(925, 10)
+        self.btntalep_hoca.setStyleSheet(
+            "color : black; background-color : white; border-radius: 5px"
+        )
+        
+        
 
         cur = conn.cursor()
         query = "SELECT ders_adı FROM \"açılanDersler\""
@@ -157,20 +169,21 @@ class AdminPanel(QWidget):
         
         veriler = cur.fetchall()
         cur.close()
-        dersler = [veri[0] for veri in veriler]
-        print(dersler)
+        self.dersler = [veri[0] for veri in veriler]
+        print(self.dersler)
 
         # Her bir ders için talep edilebilecek hoca sayısı
         self.talep_hoca_tablosu = QTableWidget(self)
-        self.talep_hoca_tablosu.move(100, 100)
-        self.talep_hoca_tablosu.setFixedSize(800, 500)
+        self.talep_hoca_tablosu.move(825, 100)
+        self.talep_hoca_tablosu.setFixedSize(450, 350)
         self.talep_hoca_tablosu.setVisible(True)
         self.talep_hoca_tablosu.setStyleSheet("color : black; background-color : white")
         self.talep_hoca_tablosu.setColumnCount(2)
-        self.talep_hoca_tablosu.setRowCount(len(dersler))
+        self.talep_hoca_tablosu.setRowCount(len(self.dersler))
         # 1 indexli sütunun genişliği 210
         self.talep_hoca_tablosu.setColumnWidth(0, 220)
         self.talep_hoca_tablosu.setColumnWidth(1, 210)
+        
         
         # Tablo başlıklarının yazı fontunu ayarlama
         font = QFont()
@@ -182,7 +195,7 @@ class AdminPanel(QWidget):
         for i in range(self.talep_hoca_tablosu.columnCount()):
             header.setFont(font)
             
-        for row, ders_adi in enumerate(dersler):
+        for row, ders_adi in enumerate(self.dersler):
             self.talep_hoca_tablosu.setItem(row, 0, QTableWidgetItem(ders_adi))
             self.talep_hoca_tablosu.setItem(row, 1, QTableWidgetItem("1"))
             
@@ -228,6 +241,19 @@ class AdminPanel(QWidget):
     def setlblTitleText(self, text):
             self.lblTitle.setText(text)
 
+    
+    def talep_sayilari_onay(self):
+
+        for row, ders_adi in enumerate(self.dersler):
+            text = self.talep_hoca_tablosu.item(row, 1).text()
+            cur = conn.cursor()
+            query = "UPDATE \"açılanDersler\" SET talep_edilebilecek_hoca_sayısı = %s WHERE ders_adı = %s"
+            cur.execute(query, (str(text), str(ders_adi)))
+            cur.close()
+                    
+        self.talep_hoca_tablosu.close()
+        self.btntalep_hoca.close()
+    
 # Öğrenci Paneli
 class StudentPanel(QWidget):
     def __init__(self):
@@ -470,7 +496,7 @@ conn = psycopg2.connect(
     host="127.0.0.1",
     port="5432",
 )
-
+conn.autocommit = True
 
 # PyQt uygulamasını başlat
 app = QApplication(sys.argv)
