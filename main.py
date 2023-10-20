@@ -18,6 +18,7 @@ from PyQt5.QtWidgets import (
     QComboBox
 )
 from PyQt5.QtGui import QFont
+import threading
 
 # Giriş Paneli
 class LoginPanel(QWidget):
@@ -83,7 +84,8 @@ class LoginPanel(QWidget):
         self.lblIncorrect.setStyleSheet("color : white")
         self.lblIncorrect.setVisible(False)
         
-        
+    def setlblTitleText(self, text):
+            self.lblTitle.setText(text)    
 
 # Yönetici Paneli
 class AdminPanel(QWidget):
@@ -100,7 +102,7 @@ class AdminPanel(QWidget):
         self.myFont.setBold(True)
         self.setWindowTitle("Yönetici Paneli")
         self.move(600, 200)
-        self.setFixedSize(800, 600)
+        self.setFixedSize(1280, 700)
 
         self.lblTitle = QLabel("Yönetici Paneli", self)
         self.lblTitle.move(10, 10)
@@ -108,6 +110,7 @@ class AdminPanel(QWidget):
         self.lblTitle.setFont(self.myFont)
         self.lblTitle.setStyleSheet("color : white")
 
+        
         """ 
             - Her bir ders için kaç farklı hocadan talep oluşturulabilir +
             - Öğrenci ve hoca arasında mesajlaşma karakter sayısı +
@@ -222,6 +225,8 @@ class AdminPanel(QWidget):
         )
         self.arr.append(self.btnStart)
 
+    def setlblTitleText(self, text):
+            self.lblTitle.setText(text)
 
 # Öğrenci Paneli
 class StudentPanel(QWidget):
@@ -396,6 +401,8 @@ class StudentPanel(QWidget):
         self.table_visible = not self.table_visible
         self.transcript_panel.setVisible(self.table_visible)
 
+    def setlblTitleText(self, text):
+        self.lblTitle.setText(text)
 
 # Hoca Paneli
 class TeacherPanel(QWidget):
@@ -422,7 +429,8 @@ class TeacherPanel(QWidget):
         self.lblTitle.setStyleSheet("color : white")
 
 
-
+    def setlblTitleText(self, text):
+        self.lblTitle.setText(text)
     
     
     
@@ -496,7 +504,11 @@ def login_check(panel, table, txtUserName):
 
 def login_student():
     results = login_check(loginStudentPanel,"ogrenci", "ogrenci_no")
+    student_name = "Öğrenci Paneli - " + results[0][1] + " " + results[0][2]
     if len(results):
+        t = threading.Thread(target=student_panel.setlblTitleText, args=(student_name,))
+        t.start()
+        t.join()
         student_panel.show()
         loginStudentPanel.setVisible(False)
     
@@ -509,7 +521,11 @@ def login_student():
 
 def login_teacher():
     results = login_check(loginTeacherPanel, "hoca", "sicil_numarası")
+    teacher_name = "Hoca Paneli - " + results[0][0] + " " + results[0][1]
     if len(results):
+        t = threading.Thread(target=teacher_panel.setlblTitleText, args=(teacher_name,))
+        t.start()
+        t.join()
         teacher_panel.show()
         loginTeacherPanel.setVisible(False)
     
@@ -522,10 +538,14 @@ def login_teacher():
 
 def login_admin():
     results = login_check(loginAdminPanel, "yonetici", "kullanıcı_adı")
+    admin_name = "Yönetici Paneli - " + results[0][1]
     if len(results):
+        t = threading.Thread(target=admin_panel.setlblTitleText, args=(admin_name,))
+        t.start()
+        t.join()
         admin_panel.show()
         loginAdminPanel.setVisible(False)
-    
+        
     else:
         loginAdminPanel.lblIncorrect.setVisible(True)
         
