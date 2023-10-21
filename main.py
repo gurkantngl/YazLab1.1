@@ -137,7 +137,7 @@ class AdminPanel(QWidget):
         self.myFont.setPointSize(9)
         self.btntalep_hoca = QPushButton(self)
         self.btntalep_hoca.clicked.connect(self.talep_sayilari_onay)
-        self.btntalep_hoca.setText("Talep Sayılarını Onayla")
+        self.btntalep_hoca.setText("Parametreleri Onayla")
         self.btntalep_hoca.setFont(self.myFont)
         self.btntalep_hoca.setFixedSize(180, 50)
         self.btntalep_hoca.move(925, 10)
@@ -229,6 +229,49 @@ class AdminPanel(QWidget):
         )
         self.arr.append(self.btnStart)
 
+        # öğrenci güncelleme silme 
+        
+        self.txtAdd_ogr_no = QLineEdit(self)
+        self.txtAdd_ogr_no.move(100, 100)
+        self.txtAdd_ogr_no.resize(60, 30)
+        self.txtAdd_ogr_no.setPlaceholderText("no")
+        self.txtAdd_ogr_no.setStyleSheet("color : black; background-color : white")
+        self.arr.append(self.txtAdd_ogr_no)
+        
+        
+        self.txtAdd_ogr_isim = QLineEdit(self)
+        self.txtAdd_ogr_isim.move(180, 100)
+        self.txtAdd_ogr_isim.resize(60, 30)
+        self.txtAdd_ogr_isim.setPlaceholderText("isim")
+        self.txtAdd_ogr_isim.setStyleSheet("color : black; background-color : white")
+        self.arr.append(self.txtAdd_ogr_isim)
+        
+        self.txtAdd_ogr_soyIsim = QLineEdit(self)
+        self.txtAdd_ogr_soyIsim.move(270, 100)
+        self.txtAdd_ogr_soyIsim.resize(60, 30)
+        self.txtAdd_ogr_soyIsim.setPlaceholderText("soyİsim")
+        self.txtAdd_ogr_soyIsim.setStyleSheet("color : black; background-color : white")
+        self.arr.append(self.txtAdd_ogr_soyIsim)
+        
+        
+        self.txtAdd_ogr_ort = QLineEdit(self)
+        self.txtAdd_ogr_ort.move(360, 100)
+        self.txtAdd_ogr_ort.resize(60, 30)
+        self.txtAdd_ogr_ort.setPlaceholderText("ortalama")
+        self.txtAdd_ogr_ort.setStyleSheet("color : black; background-color : white")
+        self.arr.append(self.txtAdd_ogr_isim)
+        
+        self.myFont.setPointSize(8)
+        self.btnAdd_ogr = QPushButton(self)
+        self.btnAdd_ogr.setText("Öğrenciyi ekle")
+        self.btnAdd_ogr.setFont(self.myFont)
+        #self.btnAdd_ogr.clicked.connect(self.start)
+        self.btnAdd_ogr.setFixedSize(100, 30)
+        self.btnAdd_ogr.move(440, 100)
+        self.btnAdd_ogr.setStyleSheet(
+            "color : black; background-color : white; border-radius: 5px"
+        )
+        
     def setlblTitleText(self, text):
             self.lblTitle.setText(text)
 
