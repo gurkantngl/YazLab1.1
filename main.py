@@ -2,6 +2,7 @@ import psycopg2
 import fitz
 import re
 import sys
+<<<<<<< HEAD
 from PyQt5 import QtCore
 from PyQt5.QtCore import QTimer
 from PyQt5.QtWidgets import QApplication, QWidget
@@ -19,6 +20,12 @@ from PyQt5.QtWidgets import (
 )
 from PyQt5.QtGui import QFont
 import threading
+=======
+from PyQt6.QtWidgets import QApplication, QWidget
+from pdf2image import convert_from_path
+from PyQt6.QtWidgets import QApplication, QWidget, QLabel, QWidget, QLineEdit, QPushButton, QFileDialog, QTableWidget, QVBoxLayout, QMainWindow, QTableWidgetItem
+from PyQt6.QtGui import QFont
+>>>>>>> 3a176a8 (libraries installed and gitignore file updated)
 
 # Giriş Paneli
 class LoginPanel(QWidget):
@@ -1009,6 +1016,7 @@ class Transcript(QWidget):
 
 # Veritabanı bağlantısı
 conn = psycopg2.connect(
+<<<<<<< HEAD
     database="postgres",
     user="postgres",
     password="yazlab1",
@@ -1016,6 +1024,13 @@ conn = psycopg2.connect(
     port="5432",
 )
 conn.autocommit = True
+=======
+        host="localhost",  
+        database="postgres",  
+        user="aslinurtopcu",  
+        password="çilek"  
+    )
+>>>>>>> 3a176a8 (libraries installed and gitignore file updated)
 
 # PyQt uygulamasını başlat
 app = QApplication(sys.argv)
@@ -1109,3 +1124,12 @@ sys.exit(app.exec_())
 
 
 
+<<<<<<< HEAD
+=======
+
+student_panel = StudentPanel()
+student_panel.show()
+
+
+sys.exit(app.exec())
+>>>>>>> 3a176a8 (libraries installed and gitignore file updated)
