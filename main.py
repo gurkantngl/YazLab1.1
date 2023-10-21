@@ -119,31 +119,15 @@ class AdminPanel(QWidget):
             - 1.Aşama süresi 
         """
 
-        self.lblRequestNum = QLabel(
-            "Bir öğrenci kaç farklı hocadan talep oluşturabilir:", self
-        )
-        self.lblRequestNum.move(20, 180)
-        self.myFont.setPointSize(9)
-        self.lblRequestNum.setFont(self.myFont)
-        self.lblRequestNum.setStyleSheet("color : white")
-        self.arr.append(self.lblRequestNum)
-
-        self.txtRequestNum = QLineEdit(self)
-        self.txtRequestNum.move(370, 180)
-        self.txtRequestNum.resize(200, 30)
-        self.txtRequestNum.setPlaceholderText("Talep sayısı girin...")
-        self.txtRequestNum.setStyleSheet("color : black; background-color: white")
-        self.arr.append(self.txtRequestNum)
-
-        self.lblChar = QLabel("Mesajlaşma karakter sayısı:", self)
-        self.lblChar.move(170, 240)
+        self.lblChar = QLabel("Mesajlaşma karakter sayısı(0 - 300):", self)
+        self.lblChar.move(800, 500)
         self.myFont.setPointSize(9)
         self.lblChar.setFont(self.myFont)
         self.lblChar.setStyleSheet("color : white")
         self.arr.append(self.lblChar)
 
         self.txtChar = QLineEdit(self)
-        self.txtChar.move(370, 240)
+        self.txtChar.move(1050, 500)
         self.txtChar.resize(200, 30)
         self.txtChar.setPlaceholderText("Karakter sayısı girin...")
         self.txtChar.setStyleSheet("color : black; background-color : white")
@@ -180,7 +164,6 @@ class AdminPanel(QWidget):
         self.talep_hoca_tablosu.setStyleSheet("color : black; background-color : white")
         self.talep_hoca_tablosu.setColumnCount(2)
         self.talep_hoca_tablosu.setRowCount(len(self.dersler))
-        # 1 indexli sütunun genişliği 210
         self.talep_hoca_tablosu.setColumnWidth(0, 220)
         self.talep_hoca_tablosu.setColumnWidth(1, 210)
         
@@ -205,22 +188,30 @@ class AdminPanel(QWidget):
         self.talep_hoca_tablosu.setVisible(True)
         
 
+        self.lblConfirmNum = QLabel("Bir hoca kaç öğrencinin talebini onaylayabilir: ", self)
+        self.lblConfirmNum.move(730, 550)
+        self.myFont.setPointSize(9)
+        self.lblConfirmNum.setFont(self.myFont)
+        self.lblConfirmNum.setStyleSheet("color : white")
+        self.arr.append(self.lblConfirmNum)
+        
+        
         self.txtConfirmNum = QLineEdit(self)
-        self.txtConfirmNum.move(370, 300)
+        self.txtConfirmNum.move(1050, 550)
         self.txtConfirmNum.resize(200, 30)
         self.txtConfirmNum.setPlaceholderText("Öğrenci sayısı girin...")
         self.txtConfirmNum.setStyleSheet("color : black; background-color : white")
         self.arr.append(self.txtConfirmNum)
 
         self.lblTime = QLabel("1. Aşama süresi:", self)
-        self.lblTime.move(250, 360)
+        self.lblTime.move(930, 600)
         self.myFont.setPointSize(9)
         self.lblTime.setFont(self.myFont)
         self.lblTime.setStyleSheet("color : white")
         self.arr.append(self.lblTime)
 
         self.txtTime = QLineEdit(self)
-        self.txtTime.move(370, 360)
+        self.txtTime.move(1050, 600)
         self.txtTime.resize(200, 30)
         self.txtTime.setPlaceholderText("Süre girin...")
         self.txtTime.setStyleSheet("color : black; background-color : white")
@@ -230,9 +221,9 @@ class AdminPanel(QWidget):
         self.btnStart = QPushButton(self)
         self.btnStart.setText("1. Aşamayı başlat")
         self.btnStart.setFont(self.myFont)
-        #self.btnStart.clicked.connect(self.start)
+        self.btnStart.clicked.connect(self.start)
         self.btnStart.setFixedSize(180, 50)
-        self.btnStart.move(275, 440)
+        self.btnStart.move(275, 10)
         self.btnStart.setStyleSheet(
             "color : black; background-color : white; border-radius: 5px"
         )
@@ -253,6 +244,14 @@ class AdminPanel(QWidget):
                     
         self.talep_hoca_tablosu.close()
         self.btntalep_hoca.close()
+    
+    def start(self):
+        char = self.txtChar.text()
+        cur = conn.cursor()
+        query = "UPDATE \"yonetici\" SET mesajlaşma_karakter_sayısı = %s WHERE kullanıcı_adı = %s"
+        cur.execute(query,(char, 'admin'))
+        cur.close()
+    
     
 # Öğrenci Paneli
 class StudentPanel(QWidget):
@@ -547,7 +546,8 @@ def login_student():
 
 def login_teacher():
     results = login_check(loginTeacherPanel, "hoca", "sicil_numarası")
-    teacher_name = "Hoca Paneli - " + results[0][0] + " " + results[0][1]
+    if results:
+        teacher_name = "Hoca Paneli - " + results[0][0] + " " + results[0][1]
     if len(results):
         t = threading.Thread(target=teacher_panel.setlblTitleText, args=(teacher_name,))
         t.start()
@@ -564,7 +564,8 @@ def login_teacher():
 
 def login_admin():
     results = login_check(loginAdminPanel, "yonetici", "kullanıcı_adı")
-    admin_name = "Yönetici Paneli - " + results[0][1]
+    if results:
+        admin_name = "Yönetici Paneli - " + results[0][1]
     if len(results):
         t = threading.Thread(target=admin_panel.setlblTitleText, args=(admin_name,))
         t.start()
