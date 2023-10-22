@@ -240,22 +240,29 @@ class AdminPanel(QWidget):
         
         
         self.txtAdd_ogr_isim = QLineEdit(self)
-        self.txtAdd_ogr_isim.move(180, 100)
+        self.txtAdd_ogr_isim.move(170, 100)
         self.txtAdd_ogr_isim.resize(60, 30)
         self.txtAdd_ogr_isim.setPlaceholderText("isim")
         self.txtAdd_ogr_isim.setStyleSheet("color : black; background-color : white")
         self.arr.append(self.txtAdd_ogr_isim)
         
         self.txtAdd_ogr_soyIsim = QLineEdit(self)
-        self.txtAdd_ogr_soyIsim.move(270, 100)
+        self.txtAdd_ogr_soyIsim.move(240, 100)
         self.txtAdd_ogr_soyIsim.resize(60, 30)
         self.txtAdd_ogr_soyIsim.setPlaceholderText("soyİsim")
         self.txtAdd_ogr_soyIsim.setStyleSheet("color : black; background-color : white")
         self.arr.append(self.txtAdd_ogr_soyIsim)
         
         
+        self.txtAdd_ogr_sifre = QLineEdit(self)
+        self.txtAdd_ogr_sifre.move(310, 100)
+        self.txtAdd_ogr_sifre.resize(60, 30)
+        self.txtAdd_ogr_sifre.setPlaceholderText("şifre")
+        self.txtAdd_ogr_sifre.setStyleSheet("color : black; background-color : white")
+        self.arr.append(self.txtAdd_ogr_sifre)
+        
         self.txtAdd_ogr_ort = QLineEdit(self)
-        self.txtAdd_ogr_ort.move(360, 100)
+        self.txtAdd_ogr_ort.move(380, 100)
         self.txtAdd_ogr_ort.resize(60, 30)
         self.txtAdd_ogr_ort.setPlaceholderText("ortalama")
         self.txtAdd_ogr_ort.setStyleSheet("color : black; background-color : white")
@@ -265,18 +272,20 @@ class AdminPanel(QWidget):
         self.btnAdd_ogr = QPushButton(self)
         self.btnAdd_ogr.setText("Öğrenciyi ekle")
         self.btnAdd_ogr.setFont(self.myFont)
-        #self.btnAdd_ogr.clicked.connect(self.start)
+        self.btnAdd_ogr.clicked.connect(self.addStudent)
         self.btnAdd_ogr.setFixedSize(100, 30)
-        self.btnAdd_ogr.move(440, 100)
+        self.btnAdd_ogr.move(450, 100)
         self.btnAdd_ogr.setStyleSheet(
             "color : black; background-color : white; border-radius: 5px"
         )
         
         
+        
+        
         # Hoca ekleme
         
         self.txtAdd_hoca_isim = QLineEdit(self)
-        self.txtAdd_hoca_isim.move(100, 150)
+        self.txtAdd_hoca_isim.move(130, 150)
         self.txtAdd_hoca_isim.resize(60, 30)
         self.txtAdd_hoca_isim.setPlaceholderText("isim")
         self.txtAdd_hoca_isim.setStyleSheet("color : black; background-color : white")
@@ -284,7 +293,7 @@ class AdminPanel(QWidget):
         
         
         self.txtAdd_hoca_soyIsim = QLineEdit(self)
-        self.txtAdd_hoca_soyIsim.move(180, 150)
+        self.txtAdd_hoca_soyIsim.move(200, 150)
         self.txtAdd_hoca_soyIsim.resize(60, 30)
         self.txtAdd_hoca_soyIsim.setPlaceholderText("soyİsim")
         self.txtAdd_hoca_soyIsim.setStyleSheet("color : black; background-color : white")
@@ -309,12 +318,30 @@ class AdminPanel(QWidget):
         self.btnAdd_hoca = QPushButton(self)
         self.btnAdd_hoca.setText("Hocayı ekle")
         self.btnAdd_hoca.setFont(self.myFont)
-        #self.btnAdd_hoca.clicked.connect(self.start)
+        self.btnAdd_hoca.clicked.connect(self.addTeacher)
         self.btnAdd_hoca.setFixedSize(100, 30)
         self.btnAdd_hoca.move(450, 150)
         self.btnAdd_hoca.setStyleSheet(
             "color : black; background-color : white; border-radius: 5px"
         )
+        
+    def addStudent(self):
+        ogr_no = self.txtAdd_ogr_no.text()  
+        isim = self.txtAdd_ogr_isim.text()
+        soyİsim = self.txtAdd_ogr_soyIsim.text()
+        sifre = self.txtAdd_ogr_sifre.text()
+        ortalama = self.txtAdd_ogr_ort.text()
+        
+        cursor = conn.cursor()
+        
+        cursor.execute('''
+        INSERT INTO ogrenci (ogrenci_no, isim, soy_isim, genel_not_ortalaması, şifre)
+        VALUES (%s, %s, %s, %s, %s) ''', (ogr_no, isim, soyİsim, ortalama, sifre))
+        cursor.close()
+        
+        
+    def addTeacher(self):
+        pass
         
         
         
