@@ -333,15 +333,24 @@ class AdminPanel(QWidget):
         ortalama = self.txtAdd_ogr_ort.text()
         
         cursor = conn.cursor()
-        
         cursor.execute('''
-        INSERT INTO ogrenci (ogrenci_no, isim, soy_isim, genel_not_ortalaması, şifre)
-        VALUES (%s, %s, %s, %s, %s) ''', (ogr_no, isim, soyİsim, ortalama, sifre))
+            INSERT INTO ogrenci (ogrenci_no, isim, soy_isim, genel_not_ortalaması, şifre)
+            VALUES (%s, %s, %s, %s, %s) ''', (ogr_no, isim, soyİsim, ortalama, sifre))
         cursor.close()
         
         
     def addTeacher(self):
-        pass
+        isim = self.txtAdd_hoca_isim.text()
+        soy_isim = self.txtAdd_hoca_soyIsim.text()
+        sifre = self.txtAdd_hoca_sifre.text()
+        acilan_dersler = self.txtAdd_acilan_ders.text()
+        
+        cursor = conn.cursor()
+        cursor.execute('''
+            INSERT INTO hoca (isim, soy_isim, şifre, açılan_dersler)
+            VALUES (%s, %s, %s, %s) ''', (isim, soy_isim, sifre, acilan_dersler))
+        cursor.close()
+        
         
         
         
