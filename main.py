@@ -229,7 +229,7 @@ class AdminPanel(QWidget):
         )
         self.arr.append(self.btnStart)
 
-        # öğrenci güncelleme silme 
+        # öğrenci ekleme
         
         self.txtAdd_ogr_no = QLineEdit(self)
         self.txtAdd_ogr_no.move(100, 100)
@@ -271,6 +271,52 @@ class AdminPanel(QWidget):
         self.btnAdd_ogr.setStyleSheet(
             "color : black; background-color : white; border-radius: 5px"
         )
+        
+        
+        # Hoca ekleme
+        
+        self.txtAdd_hoca_isim = QLineEdit(self)
+        self.txtAdd_hoca_isim.move(100, 150)
+        self.txtAdd_hoca_isim.resize(60, 30)
+        self.txtAdd_hoca_isim.setPlaceholderText("isim")
+        self.txtAdd_hoca_isim.setStyleSheet("color : black; background-color : white")
+        self.arr.append(self.txtAdd_hoca_isim)
+        
+        
+        self.txtAdd_hoca_soyIsim = QLineEdit(self)
+        self.txtAdd_hoca_soyIsim.move(180, 150)
+        self.txtAdd_hoca_soyIsim.resize(60, 30)
+        self.txtAdd_hoca_soyIsim.setPlaceholderText("soyİsim")
+        self.txtAdd_hoca_soyIsim.setStyleSheet("color : black; background-color : white")
+        self.arr.append(self.txtAdd_hoca_soyIsim)
+        
+        
+        self.txtAdd_hoca_sifre = QLineEdit(self)
+        self.txtAdd_hoca_sifre.move(270, 150)
+        self.txtAdd_hoca_sifre.resize(60, 30)
+        self.txtAdd_hoca_sifre.setPlaceholderText("şifre")
+        self.txtAdd_hoca_sifre.setStyleSheet("color : black; background-color : white")
+        self.arr.append(self.txtAdd_hoca_sifre)
+        
+        self.txtAdd_acilan_ders = QLineEdit(self)
+        self.txtAdd_acilan_ders.move(340, 150)
+        self.txtAdd_acilan_ders.resize(100, 30)
+        self.txtAdd_acilan_ders.setPlaceholderText("verdiği dersler")
+        self.txtAdd_acilan_ders.setStyleSheet("color : black; background-color : white")
+        self.arr.append(self.txtAdd_acilan_ders)
+        
+        self.myFont.setPointSize(8)
+        self.btnAdd_hoca = QPushButton(self)
+        self.btnAdd_hoca.setText("Hocayı ekle")
+        self.btnAdd_hoca.setFont(self.myFont)
+        #self.btnAdd_hoca.clicked.connect(self.start)
+        self.btnAdd_hoca.setFixedSize(100, 30)
+        self.btnAdd_hoca.move(450, 150)
+        self.btnAdd_hoca.setStyleSheet(
+            "color : black; background-color : white; border-radius: 5px"
+        )
+        
+        
         
     def setlblTitleText(self, text):
             self.lblTitle.setText(text)
