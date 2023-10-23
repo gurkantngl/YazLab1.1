@@ -279,7 +279,50 @@ class AdminPanel(QWidget):
             "color : black; background-color : white; border-radius: 5px"
         )
         
+        # Öğrenci bilgi değiştirme
         
+        self.cbxChangeOgr = QComboBox(self)
+        self.cbxChangeOgr.move(120, 200)
+        self.cbxChangeOgr.resize(170,30)
+        self.cbxChangeOgr.setStyleSheet("background-color : white")
+        
+        table_name = "ogrenci"
+        cursor = conn.cursor()
+        cursor.execute(f"SELECT column_name FROM information_schema.columns WHERE table_name = '{table_name}'")
+        columns = [row[0] for row in cursor.fetchall()]        
+        cursor.close()
+        
+        del columns[columns.index("transkript")]
+        
+        self.cbxChangeOgr.addItems(columns)
+        self.cbxChangeOgr.setVisible(True)
+        
+        
+        self.txtChangeOgr_no = QLineEdit(self)
+        self.txtChangeOgr_no.move(30, 200)
+        self.txtChangeOgr_no.resize(80, 30)
+        self.txtChangeOgr_no.setPlaceholderText("no girin...")
+        self.txtChangeOgr_no.setStyleSheet("color : black; background-color : white")
+        self.arr.append(self.txtChangeOgr_no)
+        
+        self.txtChangeOgr = QLineEdit(self)
+        self.txtChangeOgr.move(310, 200)
+        self.txtChangeOgr.resize(120, 30)
+        self.txtChangeOgr.setPlaceholderText("Yeni değeri girin...")
+        self.txtChangeOgr.setStyleSheet("color : black; background-color : white")
+        self.arr.append(self.txtChangeOgr)
+        
+        
+        self.myFont.setPointSize(11)
+        self.btnChange = QPushButton(self)
+        self.btnChange.setText("Güncelle")
+        self.btnChange.setFont(self.myFont)
+        self.btnChange.clicked.connect(self.changeStudent)
+        self.btnChange.setFixedSize(100, 30)
+        self.btnChange.move(450, 200)
+        self.btnChange.setStyleSheet(
+            "color : black; background-color : white; border-radius: 5px")
+        self.arr.append(self.btnChange)
         
         
         # Hoca ekleme
@@ -339,6 +382,17 @@ class AdminPanel(QWidget):
         cursor.close()
         
         
+    def changeStudent(self):
+        changeItem = self.cbxChangeOgr.currentText()
+        no = self.txtChangeOgr_no.text()
+        new_value = self.txtChangeOgr.text()
+        
+        cur = conn.cursor()
+        query = f"UPDATE \"ogrenci\" SET {changeItem} = %s WHERE ogrenci_no = %s"
+        cur.execute(query, (str(new_value), str(no)))
+        cur.close()
+    
+    
     def addTeacher(self):
         isim = self.txtAdd_hoca_isim.text()
         soy_isim = self.txtAdd_hoca_soyIsim.text()
@@ -367,8 +421,43 @@ class AdminPanel(QWidget):
             cur.execute(query, (str(text), str(ders_adi)))
             cur.close()
                     
-        self.talep_hoca_tablosu.close()
-        self.btntalep_hoca.close()
+        mesaj_karakter = self.txtChar.text()
+        cur = conn.cursor()
+        query = "UPDATE \"yonetici\" SET mesajlaşma_karakter_sayısı = %s"
+        cur.execute(query, (mesaj_karakter,))
+        cur.close()
+        
+        
+        talep_onay = self.txtConfirmNum.text()
+        cur = conn.cursor()
+        query = "UPDATE \"yonetici\" SET bir_hoca_kac_talep_onaylayabilir = %s"
+        cur.execute(query, (talep_onay,))
+        cur.close()
+        
+        
+        time = self.txtTime.text()
+        cur = conn.cursor()
+        query = "UPDATE \"yonetici\" SET aşama_süresi = %s"
+        cur.execute(query, (time,))
+        cur.close()
+        
+        
+        self.talep_hoca_tablosu.setVisible(False)
+        self.btntalep_hoca.setVisible(False)
+        self.lblChar.setVisible(False)
+        self.txtChar.setText = ""
+        self.txtChar.setVisible(False)
+        self.lblConfirmNum.setVisible(False)
+        self.txtConfirmNum.setText = ""
+        self.txtConfirmNum.setVisible(False)
+        self.lblTime.setVisible(False)
+        self.lblTime.setText = ""
+        self.txtTime.setVisible(False)
+        
+        
+        
+        
+        
     
     def start(self):
         char = self.txtChar.text()
