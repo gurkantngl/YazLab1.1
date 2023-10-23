@@ -229,6 +229,10 @@ class AdminPanel(QWidget):
         )
         self.arr.append(self.btnStart)
 
+
+
+
+
         # öğrenci ekleme
         
         self.txtAdd_ogr_no = QLineEdit(self)
@@ -244,14 +248,12 @@ class AdminPanel(QWidget):
         self.txtAdd_ogr_isim.resize(60, 30)
         self.txtAdd_ogr_isim.setPlaceholderText("isim")
         self.txtAdd_ogr_isim.setStyleSheet("color : black; background-color : white")
-        self.arr.append(self.txtAdd_ogr_isim)
         
         self.txtAdd_ogr_soyIsim = QLineEdit(self)
         self.txtAdd_ogr_soyIsim.move(240, 100)
         self.txtAdd_ogr_soyIsim.resize(60, 30)
         self.txtAdd_ogr_soyIsim.setPlaceholderText("soyİsim")
         self.txtAdd_ogr_soyIsim.setStyleSheet("color : black; background-color : white")
-        self.arr.append(self.txtAdd_ogr_soyIsim)
         
         
         self.txtAdd_ogr_sifre = QLineEdit(self)
@@ -259,14 +261,12 @@ class AdminPanel(QWidget):
         self.txtAdd_ogr_sifre.resize(60, 30)
         self.txtAdd_ogr_sifre.setPlaceholderText("şifre")
         self.txtAdd_ogr_sifre.setStyleSheet("color : black; background-color : white")
-        self.arr.append(self.txtAdd_ogr_sifre)
         
         self.txtAdd_ogr_ort = QLineEdit(self)
         self.txtAdd_ogr_ort.move(380, 100)
         self.txtAdd_ogr_ort.resize(60, 30)
         self.txtAdd_ogr_ort.setPlaceholderText("ortalama")
         self.txtAdd_ogr_ort.setStyleSheet("color : black; background-color : white")
-        self.arr.append(self.txtAdd_ogr_isim)
         
         self.myFont.setPointSize(8)
         self.btnAdd_ogr = QPushButton(self)
@@ -284,6 +284,8 @@ class AdminPanel(QWidget):
         self.lblResultAddSt.setFont(self.myFont)
         self.lblResultAddSt.setStyleSheet("color : white")
         self.lblResultAddSt.setVisible(False) 
+        
+        
         
         
         # Öğrenci bilgi değiştirme
@@ -338,6 +340,35 @@ class AdminPanel(QWidget):
         self.arr.append(self.btnChange)
         
         
+        
+        
+        # Öğrenci silme
+        
+        self.txtRem_ogr_no = QLineEdit(self)
+        self.txtRem_ogr_no.move(350, 300)
+        self.txtRem_ogr_no.resize(60, 30)
+        self.txtRem_ogr_no.setPlaceholderText("no")
+        self.txtRem_ogr_no.setStyleSheet("color : black; background-color : white")
+        
+        
+        self.myFont.setPointSize(8)
+        self.btnRem_ogr = QPushButton(self)
+        self.btnRem_ogr.setText("Öğrenciyi sil")
+        self.btnRem_ogr.setFont(self.myFont)
+        self.btnRem_ogr.clicked.connect(self.removeStudent)
+        self.btnRem_ogr.setFixedSize(100, 30)
+        self.btnRem_ogr.move(450, 300)
+        self.btnRem_ogr.setStyleSheet(
+            "color : black; background-color : white; border-radius: 5px"
+        )
+        
+        self.lblResultRemoveSt = QLabel("Başarılı", self)
+        self.lblResultRemoveSt.move(570, 300)
+        self.lblResultRemoveSt.setFont(self.myFont)
+        self.lblResultRemoveSt.setStyleSheet("color : white")
+        self.lblResultRemoveSt.setVisible(False) 
+        
+        
         # Hoca ekleme
         
         self.txtAdd_hoca_isim = QLineEdit(self)
@@ -386,6 +417,8 @@ class AdminPanel(QWidget):
         self.lblResultAddTch.setFont(self.myFont)
         self.lblResultAddTch.setStyleSheet("color : white")
         self.lblResultAddTch.setVisible(False) 
+        
+        
         
         # Hoca bilgi değiştirme
         
@@ -437,8 +470,32 @@ class AdminPanel(QWidget):
         self.btnChangeHoca.move(450, 250)
         self.btnChangeHoca.setStyleSheet(
             "color : black; background-color : white; border-radius: 5px")
-        self.arr.append(self.btnChangeHoca)
         
+        
+        # Hoca Silme
+        
+        
+        self.txtRemove_hoca_sicil_no = QLineEdit(self)
+        self.txtRemove_hoca_sicil_no.move(350, 350)
+        self.txtRemove_hoca_sicil_no.resize(80, 30)
+        self.txtRemove_hoca_sicil_no.setPlaceholderText("sicil no")
+        self.txtRemove_hoca_sicil_no.setStyleSheet("color : black; background-color : white")
+        
+        self.myFont.setPointSize(11)
+        self.btnRemoveHoca = QPushButton(self)
+        self.btnRemoveHoca.setText("Hocayı sil")
+        self.btnRemoveHoca.setFont(self.myFont)
+        self.btnRemoveHoca.clicked.connect(self.removeTeacher)
+        self.btnRemoveHoca.setFixedSize(100, 30)
+        self.btnRemoveHoca.move(450, 350)
+        self.btnRemoveHoca.setStyleSheet(
+            "color : black; background-color : white; border-radius: 5px")
+        
+        self.lblResultRemoveTch = QLabel("Başarılı", self)
+        self.lblResultRemoveTch.move(570, 350)
+        self.lblResultRemoveTch.setFont(self.myFont)
+        self.lblResultRemoveTch.setStyleSheet("color : white")
+        self.lblResultRemoveTch.setVisible(False) 
         
     def addStudent(self):
         ogr_no = self.txtAdd_ogr_no.text()  
@@ -488,6 +545,23 @@ class AdminPanel(QWidget):
             self.lblResultChangeSt.setText = "Hata"
             self.lblResultChangeSt.setVisible(True)
             
+    def removeStudent(self):
+        no = self.txtRem_ogr_no.text()
+        
+        self.txtRem_ogr_no.setText = "" 
+        try:
+            cursor = conn.cursor()
+            query = f"DELETE FROM ogrenci WHERE ogrenci_no = {no}"
+
+            cursor.execute(query)
+            cursor.close()
+            
+            self.lblResultRemoveSt.setVisible(True)
+            
+        except:
+            self.lblResultRemoveSt.setText = "Hata"
+            self.lblResultRemoveSt.setVisible(True)
+    
     
     def addTeacher(self):
         isim = self.txtAdd_hoca_isim.text()
@@ -533,12 +607,32 @@ class AdminPanel(QWidget):
         except:
             self.lblResultChangeTch.setText = "Hata"
             self.lblResultChangeTch.setVisible(True)
+       
             
-        
+    def removeTeacher(self):
+        sicil_no = self.txtRemove_hoca_sicil_no.text()
+        self.txtRemove_hoca_sicil_no.setText = ""
+      
+        try:
+            cursor = conn.cursor()
+            query = f"DELETE FROM hoca WHERE sicil_numarası = {sicil_no}"
+
+            cursor.execute(query)
+            cursor.close()
+            
+            self.lblResultRemoveTch.setVisible(True)
+            
+        except:
+            self.lblResultRemoveTch.setText = "Hata"
+            self.lblResultRemoveTch.setVisible(True)
+      
+      
+      
     def setlblTitleText(self, text):
             self.lblTitle.setText(text)
 
-    
+            
+            
     def talep_sayilari_onay(self):
 
         for row, ders_adi in enumerate(self.dersler):
