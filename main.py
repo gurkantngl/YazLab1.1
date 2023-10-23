@@ -279,7 +279,21 @@ class AdminPanel(QWidget):
             "color : black; background-color : white; border-radius: 5px"
         )
         
+        self.lblResultAddSt = QLabel("Başarılı", self)
+        self.lblResultAddSt.move(570, 100)
+        self.lblResultAddSt.setFont(self.myFont)
+        self.lblResultAddSt.setStyleSheet("color : white")
+        self.lblResultAddSt.setVisible(False) 
+        
+        
         # Öğrenci bilgi değiştirme
+        
+        self.txtChangeOgr_no = QLineEdit(self)
+        self.txtChangeOgr_no.move(30, 200)
+        self.txtChangeOgr_no.resize(80, 30)
+        self.txtChangeOgr_no.setPlaceholderText("no girin...")
+        self.txtChangeOgr_no.setStyleSheet("color : black; background-color : white")
+        self.arr.append(self.txtChangeOgr_no)
         
         self.cbxChangeOgr = QComboBox(self)
         self.cbxChangeOgr.move(120, 200)
@@ -293,17 +307,11 @@ class AdminPanel(QWidget):
         cursor.close()
         
         del columns[columns.index("transkript")]
+        del columns[columns.index("anlaşma_talep_sayısı")]
         
         self.cbxChangeOgr.addItems(columns)
         self.cbxChangeOgr.setVisible(True)
-        
-        
-        self.txtChangeOgr_no = QLineEdit(self)
-        self.txtChangeOgr_no.move(30, 200)
-        self.txtChangeOgr_no.resize(80, 30)
-        self.txtChangeOgr_no.setPlaceholderText("no girin...")
-        self.txtChangeOgr_no.setStyleSheet("color : black; background-color : white")
-        self.arr.append(self.txtChangeOgr_no)
+
         
         self.txtChangeOgr = QLineEdit(self)
         self.txtChangeOgr.move(310, 200)
@@ -312,6 +320,11 @@ class AdminPanel(QWidget):
         self.txtChangeOgr.setStyleSheet("color : black; background-color : white")
         self.arr.append(self.txtChangeOgr)
         
+        self.lblResultChangeSt = QLabel("Başarılı", self)
+        self.lblResultChangeSt.move(570, 200)
+        self.lblResultChangeSt.setFont(self.myFont)
+        self.lblResultChangeSt.setStyleSheet("color : white")
+        self.lblResultChangeSt.setVisible(False) 
         
         self.myFont.setPointSize(11)
         self.btnChange = QPushButton(self)
@@ -368,6 +381,65 @@ class AdminPanel(QWidget):
             "color : black; background-color : white; border-radius: 5px"
         )
         
+        self.lblResultAddTch = QLabel("Başarılı", self)
+        self.lblResultAddTch.move(570, 150)
+        self.lblResultAddTch.setFont(self.myFont)
+        self.lblResultAddTch.setStyleSheet("color : white")
+        self.lblResultAddTch.setVisible(False) 
+        
+        # Hoca bilgi değiştirme
+        
+        self.txtChange_hoca_sicil_no = QLineEdit(self)
+        self.txtChange_hoca_sicil_no.move(30, 250)
+        self.txtChange_hoca_sicil_no.resize(80, 30)
+        self.txtChange_hoca_sicil_no.setPlaceholderText("sicil no girin...")
+        self.txtChange_hoca_sicil_no.setStyleSheet("color : black; background-color : white")
+        self.arr.append(self.txtChange_hoca_sicil_no)
+        
+        
+        self.cbxChangeHoca = QComboBox(self)
+        self.cbxChangeHoca.move(120, 250)
+        self.cbxChangeHoca.resize(170,30)
+        self.cbxChangeHoca.setStyleSheet("background-color : white")
+        
+        table_name = "hoca"
+        cursor = conn.cursor()
+        cursor.execute(f"SELECT column_name FROM information_schema.columns WHERE table_name = '{table_name}'")
+        columns = [row[0] for row in cursor.fetchall()]        
+        cursor.close()
+        
+        del columns[columns.index("ilgi_alanları")]
+        del columns[columns.index("açılan_dersler")]
+        del columns[columns.index("kriter_dersler")]
+        
+        self.cbxChangeHoca.addItems(columns)
+        self.cbxChangeHoca.setVisible(True)
+        
+        self.txtChangeHoca = QLineEdit(self)
+        self.txtChangeHoca.move(310, 250)
+        self.txtChangeHoca.resize(120, 30)
+        self.txtChangeHoca.setPlaceholderText("Yeni değeri girin...")
+        self.txtChangeHoca.setStyleSheet("color : black; background-color : white")
+        self.arr.append(self.txtChangeHoca)
+        
+        self.lblResultChangeTch = QLabel("Başarılı", self)
+        self.lblResultChangeTch.move(570, 250)
+        self.lblResultChangeTch.setFont(self.myFont)
+        self.lblResultChangeTch.setStyleSheet("color : white")
+        self.lblResultChangeTch.setVisible(False)
+        
+        self.myFont.setPointSize(11)
+        self.btnChangeHoca = QPushButton(self)
+        self.btnChangeHoca.setText("Güncelle")
+        self.btnChangeHoca.setFont(self.myFont)
+        self.btnChangeHoca.clicked.connect(self.changeTeacher)
+        self.btnChangeHoca.setFixedSize(100, 30)
+        self.btnChangeHoca.move(450, 250)
+        self.btnChangeHoca.setStyleSheet(
+            "color : black; background-color : white; border-radius: 5px")
+        self.arr.append(self.btnChangeHoca)
+        
+        
     def addStudent(self):
         ogr_no = self.txtAdd_ogr_no.text()  
         isim = self.txtAdd_ogr_isim.text()
@@ -375,11 +447,25 @@ class AdminPanel(QWidget):
         sifre = self.txtAdd_ogr_sifre.text()
         ortalama = self.txtAdd_ogr_ort.text()
         
-        cursor = conn.cursor()
-        cursor.execute('''
-            INSERT INTO ogrenci (ogrenci_no, isim, soy_isim, genel_not_ortalaması, şifre)
-            VALUES (%s, %s, %s, %s, %s) ''', (ogr_no, isim, soyİsim, ortalama, sifre))
-        cursor.close()
+        self.txtAdd_ogr_no.setText = ""
+        self.txtAdd_ogr_isim.setTextext = ""
+        self.txtAdd_ogr_soyIsim.setText = ""
+        self.txtAdd_ogr_sifre.setText = ""
+        self.txtAdd_ogr_ort.setText = ""
+        
+        try:
+            cursor = conn.cursor()
+            cursor.execute('''
+                INSERT INTO ogrenci (ogrenci_no, isim, soy_isim, genel_not_ortalaması, şifre)
+                VALUES (%s, %s, %s, %s, %s) ''', (ogr_no, isim, soyİsim, ortalama, sifre))
+            cursor.close()
+            
+            
+            self.lblResultAddSt.setVisible(True)
+            
+        except:
+            self.lblResultAddSt.setText = "Hata"
+            self.lblResultAddSt.setVisible(True)
         
         
     def changeStudent(self):
@@ -387,11 +473,21 @@ class AdminPanel(QWidget):
         no = self.txtChangeOgr_no.text()
         new_value = self.txtChangeOgr.text()
         
-        cur = conn.cursor()
-        query = f"UPDATE \"ogrenci\" SET {changeItem} = %s WHERE ogrenci_no = %s"
-        cur.execute(query, (str(new_value), str(no)))
-        cur.close()
-    
+        self.txtChangeOgr_no.setText = ""
+        self.txtChangeOgr.setText = ""
+        
+        try:
+            cur = conn.cursor()
+            query = f"UPDATE \"ogrenci\" SET {changeItem} = %s WHERE ogrenci_no = %s"
+            cur.execute(query, (str(new_value), str(no)))
+            cur.close()
+
+            self.lblResultChangeSt.setVisible(True)
+
+        except:
+            self.lblResultChangeSt.setText = "Hata"
+            self.lblResultChangeSt.setVisible(True)
+            
     
     def addTeacher(self):
         isim = self.txtAdd_hoca_isim.text()
@@ -399,14 +495,45 @@ class AdminPanel(QWidget):
         sifre = self.txtAdd_hoca_sifre.text()
         acilan_dersler = self.txtAdd_acilan_ders.text()
         
-        cursor = conn.cursor()
-        cursor.execute('''
-            INSERT INTO hoca (isim, soy_isim, şifre, açılan_dersler)
-            VALUES (%s, %s, %s, %s) ''', (isim, soy_isim, sifre, acilan_dersler))
-        cursor.close()
+        self.txtAdd_hoca_isim.setText = ""
+        self.txtAdd_hoca_soyIsim.setText = ""
+        self.txtAdd_hoca_sifre.setText = ""
+        self.txtAdd_acilan_ders.setText = ""
         
+        try:
+            cursor = conn.cursor()
+            cursor.execute('''
+                INSERT INTO hoca (isim, soy_isim, şifre, açılan_dersler)
+                VALUES (%s, %s, %s, %s) ''', (isim, soy_isim, sifre, acilan_dersler))
+            cursor.close()
+
+            self.lblResultAddTch.setVisible(True)
         
+        except:
+            self.lblResultAddTch.setText = "Hata"
+            self.lblResultAddTch.setVisible(True)
+            
+    
+    def changeTeacher(self):
+        sicil_no = self.txtChange_hoca_sicil_no.text()
+        changeItem = self.cbxChangeHoca.currentText()
+        newValue = self.txtChangeHoca.text()
         
+        self.txtChange_hoca_sicil_no.setText = ""
+        self.txtChangeHoca.setText = ""
+        
+        try:
+            cur = conn.cursor()
+            query = f"UPDATE \"hoca\" SET {changeItem} = %s WHERE sicil_numarası = %s"
+            cur.execute(query, (str(newValue), str(sicil_no)))
+            cur.close()
+            
+            self.lblResultChangeTch.setVisible(True)
+        
+        except:
+            self.lblResultChangeTch.setText = "Hata"
+            self.lblResultChangeTch.setVisible(True)
+            
         
     def setlblTitleText(self, text):
             self.lblTitle.setText(text)
