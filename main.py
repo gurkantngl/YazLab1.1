@@ -497,6 +497,55 @@ class AdminPanel(QWidget):
         self.lblResultRemoveTch.setStyleSheet("color : white")
         self.lblResultRemoveTch.setVisible(False) 
         
+        
+        # İlgi alanı ekleme
+        self.txtAddİlgi_alani = QLineEdit(self)
+        self.txtAddİlgi_alani.move(320, 400)
+        self.txtAddİlgi_alani.resize(100, 30)
+        self.txtAddİlgi_alani.setPlaceholderText("ilgi alanı")
+        self.txtAddİlgi_alani.setStyleSheet("color : black; background-color : white")
+        
+        self.myFont.setPointSize(9)
+        self.btnAddİlgi_alani = QPushButton(self)
+        self.btnAddİlgi_alani.setText("İlgi alanı ekle")
+        self.btnAddİlgi_alani.setFont(self.myFont)
+        self.btnAddİlgi_alani.clicked.connect(self.addIlgi_alani)
+        self.btnAddİlgi_alani.setFixedSize(100, 30)
+        self.btnAddİlgi_alani.move(450, 400)
+        self.btnAddİlgi_alani.setStyleSheet(
+            "color : black; background-color : white; border-radius: 5px")
+        
+        
+        self.lblResultAddIlgi_alani = QLabel("Başarılı", self)
+        self.lblResultAddIlgi_alani.move(570, 400)
+        self.lblResultAddIlgi_alani.setFont(self.myFont)
+        self.lblResultAddIlgi_alani.setStyleSheet("color : white")
+        self.lblResultAddIlgi_alani.setVisible(False)
+        
+        
+        # İlgi alanı sil
+        self.txtRemoveİlgi_alani = QLineEdit(self)
+        self.txtRemoveİlgi_alani.move(320, 450)
+        self.txtRemoveİlgi_alani.resize(100, 30)
+        self.txtRemoveİlgi_alani.setPlaceholderText("ilgi alanı")
+        self.txtRemoveİlgi_alani.setStyleSheet("color : black; background-color : white")
+        
+        self.myFont.setPointSize(11)
+        self.btnRemoveİlgi_alani = QPushButton(self)
+        self.btnRemoveİlgi_alani.setText("İlgi alanı sil")
+        self.btnRemoveİlgi_alani.setFont(self.myFont)
+        self.btnRemoveİlgi_alani.clicked.connect(self.removeIlgi_alani)
+        self.btnRemoveİlgi_alani.setFixedSize(100, 30)
+        self.btnRemoveİlgi_alani.move(450, 450)
+        self.btnRemoveİlgi_alani.setStyleSheet(
+            "color : black; background-color : white; border-radius: 5px")
+         
+        self.lblRemoveIlgi_alani = QLabel("Başarılı", self)
+        self.lblRemoveIlgi_alani.move(570, 450)
+        self.lblRemoveIlgi_alani.setFont(self.myFont)
+        self.lblRemoveIlgi_alani.setStyleSheet("color : white")
+        self.lblRemoveIlgi_alani.setVisible(False)
+        
     def addStudent(self):
         ogr_no = self.txtAdd_ogr_no.text()  
         isim = self.txtAdd_ogr_isim.text()
@@ -626,7 +675,26 @@ class AdminPanel(QWidget):
             self.lblResultRemoveTch.setText = "Hata"
             self.lblResultRemoveTch.setVisible(True)
       
-      
+    
+    
+    def addIlgi_alani(self):
+        ilgi_alani = self.txtAddİlgi_alani.text()
+        self.txtAddİlgi_alani.setText = ""
+        
+        try:
+            cursor = conn.cursor()
+            sql = "INSERT INTO ilgialanlari (ilgi_alanı) VALUES (%s)"
+            cursor.execute(sql, (ilgi_alani,))
+            cursor.close()
+            
+            self.lblResultAddIlgi_alani.setVisible(True)
+        
+        except:
+            self.lblResultAddIlgi_alani.setText = "Hata"
+            self.lblResultAddIlgi_alani.setVisible(True)
+        
+    def removeIlgi_alani(self):
+        pass
       
     def setlblTitleText(self, text):
             self.lblTitle.setText(text)
