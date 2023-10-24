@@ -343,7 +343,6 @@ class AdminPanel(QWidget):
         
         
         # Öğrenci silme
-        
         self.txtRem_ogr_no = QLineEdit(self)
         self.txtRem_ogr_no.move(350, 300)
         self.txtRem_ogr_no.resize(60, 30)
@@ -370,7 +369,6 @@ class AdminPanel(QWidget):
         
         
         # Hoca ekleme
-        
         self.txtAdd_hoca_isim = QLineEdit(self)
         self.txtAdd_hoca_isim.move(130, 150)
         self.txtAdd_hoca_isim.resize(60, 30)
@@ -421,7 +419,6 @@ class AdminPanel(QWidget):
         
         
         # Hoca bilgi değiştirme
-        
         self.txtChange_hoca_sicil_no = QLineEdit(self)
         self.txtChange_hoca_sicil_no.move(30, 250)
         self.txtChange_hoca_sicil_no.resize(80, 30)
@@ -472,9 +469,7 @@ class AdminPanel(QWidget):
             "color : black; background-color : white; border-radius: 5px")
         
         
-        # Hoca Silme
-        
-        
+        # Hoca Silme  
         self.txtRemove_hoca_sicil_no = QLineEdit(self)
         self.txtRemove_hoca_sicil_no.move(350, 350)
         self.txtRemove_hoca_sicil_no.resize(80, 30)
@@ -546,6 +541,13 @@ class AdminPanel(QWidget):
         self.lblRemoveIlgi_alani.setStyleSheet("color : white")
         self.lblRemoveIlgi_alani.setVisible(False)
         
+        
+        self.lblResultRemoveIlgi_alani = QLabel("Başarılı", self)
+        self.lblResultRemoveIlgi_alani.move(570, 450)
+        self.lblResultRemoveIlgi_alani.setFont(self.myFont)
+        self.lblResultRemoveIlgi_alani.setStyleSheet("color : white")
+        self.lblResultRemoveIlgi_alani.setVisible(False)
+        
     def addStudent(self):
         ogr_no = self.txtAdd_ogr_no.text()  
         isim = self.txtAdd_ogr_isim.text()
@@ -601,7 +603,6 @@ class AdminPanel(QWidget):
         try:
             cursor = conn.cursor()
             query = f"DELETE FROM ogrenci WHERE ogrenci_no = {no}"
-
             cursor.execute(query)
             cursor.close()
             
@@ -693,8 +694,24 @@ class AdminPanel(QWidget):
             self.lblResultAddIlgi_alani.setText = "Hata"
             self.lblResultAddIlgi_alani.setVisible(True)
         
+        
     def removeIlgi_alani(self):
-        pass
+        ilgi_alani = self.txtRemoveİlgi_alani.text()
+        self.txtRemoveİlgi_alani.setText = ""
+        
+        try:
+            cursor = conn.cursor()
+            query = f"DELETE FROM ilgialanlari WHERE ilgi_alanı = %s"
+            cursor.execute(query, (ilgi_alani,))
+            cursor.close()
+            
+            self.lblRemoveIlgi_alani.setVisible(True)
+
+        except Exception:
+            print(Exception)
+            self.lblRemoveIlgi_alani.setText = "Hata"
+            self.lblRemoveIlgi_alani.setVisible(True)
+      
       
     def setlblTitleText(self, text):
             self.lblTitle.setText(text)
