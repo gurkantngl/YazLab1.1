@@ -2,11 +2,10 @@ import psycopg2
 import fitz
 import re
 import sys
-<<<<<<< HEAD
-from PyQt5 import QtCore
-from PyQt5.QtCore import QTimer
-from PyQt5.QtWidgets import QApplication, QWidget
-from PyQt5.QtWidgets import (
+from PyQt6 import QtCore
+from PyQt6.QtCore import QTimer
+from PyQt6.QtWidgets import QApplication, QWidget
+from PyQt6.QtWidgets import (
     QApplication,
     QWidget,
     QLabel,
@@ -18,16 +17,21 @@ from PyQt5.QtWidgets import (
     QTableWidgetItem,
     QComboBox
 )
-from PyQt5.QtGui import QFont
-import threading
-=======
-from PyQt6.QtWidgets import QApplication, QWidget
-from pdf2image import convert_from_path
-from PyQt6.QtWidgets import QApplication, QWidget, QLabel, QWidget, QLineEdit, QPushButton, QFileDialog, QTableWidget, QVBoxLayout, QMainWindow, QTableWidgetItem
 from PyQt6.QtGui import QFont
->>>>>>> 3a176a8 (libraries installed and gitignore file updated)
+import threading
 
+import student_panel
+
+from PyQt6.QtWidgets import QMainWindow, QLabel, QLineEdit, QPushButton, QVBoxLayout, QApplication, QWidget
+from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QPixmap, QIcon, QPalette, QColor
 # Giriş Paneli
+
+from PyQt6.QtGui import QPixmap, QFont, QColor, QIcon
+
+import sys
+from PyQt6.QtWidgets import QApplication, QWidget,QMainWindow, QLabel, QPushButton, QVBoxLayout,QTabWidget, QWidget, QVBoxLayout, QListWidget, QPushButton, QFileDialog,QHBoxLayout
+
 class LoginPanel(QWidget):
     def __init__(self, text, x, txtUserName):
         self.textUser = txtUserName
@@ -126,15 +130,31 @@ class AdminPanel(QWidget):
             - 1.Aşama süresi 
         """
 
-        self.lblChar = QLabel("Mesajlaşma karakter sayısı(0 - 300):", self)
-        self.lblChar.move(800, 500)
+        self.lblRequestNum = QLabel(
+            "Bir öğrenci kaç farklı hocadan talep oluşturabilir:", self
+        )
+        self.lblRequestNum.move(20, 180)
+        self.myFont.setPointSize(9)
+        self.lblRequestNum.setFont(self.myFont)
+        self.lblRequestNum.setStyleSheet("color : white")
+        self.arr.append(self.lblRequestNum)
+
+        self.txtRequestNum = QLineEdit(self)
+        self.txtRequestNum.move(370, 180)
+        self.txtRequestNum.resize(200, 30)
+        self.txtRequestNum.setPlaceholderText("Talep sayısı girin...")
+        self.txtRequestNum.setStyleSheet("color : black; background-color: white")
+        self.arr.append(self.txtRequestNum)
+
+        self.lblChar = QLabel("Mesajlaşma karakter sayısı:", self)
+        self.lblChar.move(170, 240)
         self.myFont.setPointSize(9)
         self.lblChar.setFont(self.myFont)
         self.lblChar.setStyleSheet("color : white")
         self.arr.append(self.lblChar)
 
         self.txtChar = QLineEdit(self)
-        self.txtChar.move(1050, 500)
+        self.txtChar.move(370, 240)
         self.txtChar.resize(200, 30)
         self.txtChar.setPlaceholderText("Karakter sayısı girin...")
         self.txtChar.setStyleSheet("color : black; background-color : white")
@@ -144,7 +164,7 @@ class AdminPanel(QWidget):
         self.myFont.setPointSize(9)
         self.btntalep_hoca = QPushButton(self)
         self.btntalep_hoca.clicked.connect(self.talep_sayilari_onay)
-        self.btntalep_hoca.setText("Parametreleri Onayla")
+        self.btntalep_hoca.setText("Talep Sayılarını Onayla")
         self.btntalep_hoca.setFont(self.myFont)
         self.btntalep_hoca.setFixedSize(180, 50)
         self.btntalep_hoca.move(925, 10)
@@ -155,7 +175,7 @@ class AdminPanel(QWidget):
         
 
         cur = conn.cursor()
-        query = "SELECT ders_adı FROM \"açılanDersler\""
+        query = "SELECT ders_adı FROM açılanDersler"
         cur.execute(query)
         
         veriler = cur.fetchall()
@@ -171,6 +191,7 @@ class AdminPanel(QWidget):
         self.talep_hoca_tablosu.setStyleSheet("color : black; background-color : white")
         self.talep_hoca_tablosu.setColumnCount(2)
         self.talep_hoca_tablosu.setRowCount(len(self.dersler))
+        # 1 indexli sütunun genişliği 210
         self.talep_hoca_tablosu.setColumnWidth(0, 220)
         self.talep_hoca_tablosu.setColumnWidth(1, 210)
         
@@ -195,30 +216,22 @@ class AdminPanel(QWidget):
         self.talep_hoca_tablosu.setVisible(True)
         
 
-        self.lblConfirmNum = QLabel("Bir hoca kaç öğrencinin talebini onaylayabilir: ", self)
-        self.lblConfirmNum.move(730, 550)
-        self.myFont.setPointSize(9)
-        self.lblConfirmNum.setFont(self.myFont)
-        self.lblConfirmNum.setStyleSheet("color : white")
-        self.arr.append(self.lblConfirmNum)
-        
-        
         self.txtConfirmNum = QLineEdit(self)
-        self.txtConfirmNum.move(1050, 550)
+        self.txtConfirmNum.move(370, 300)
         self.txtConfirmNum.resize(200, 30)
         self.txtConfirmNum.setPlaceholderText("Öğrenci sayısı girin...")
         self.txtConfirmNum.setStyleSheet("color : black; background-color : white")
         self.arr.append(self.txtConfirmNum)
 
         self.lblTime = QLabel("1. Aşama süresi:", self)
-        self.lblTime.move(930, 600)
+        self.lblTime.move(250, 360)
         self.myFont.setPointSize(9)
         self.lblTime.setFont(self.myFont)
         self.lblTime.setStyleSheet("color : white")
         self.arr.append(self.lblTime)
 
         self.txtTime = QLineEdit(self)
-        self.txtTime.move(1050, 600)
+        self.txtTime.move(370, 360)
         self.txtTime.resize(200, 30)
         self.txtTime.setPlaceholderText("Süre girin...")
         self.txtTime.setStyleSheet("color : black; background-color : white")
@@ -228,503 +241,18 @@ class AdminPanel(QWidget):
         self.btnStart = QPushButton(self)
         self.btnStart.setText("1. Aşamayı başlat")
         self.btnStart.setFont(self.myFont)
-        self.btnStart.clicked.connect(self.start)
+        #self.btnStart.clicked.connect(self.start)
         self.btnStart.setFixedSize(180, 50)
-        self.btnStart.move(275, 10)
+        self.btnStart.move(275, 440)
         self.btnStart.setStyleSheet(
             "color : black; background-color : white; border-radius: 5px"
         )
         self.arr.append(self.btnStart)
 
-
-
-
-
-        # öğrenci ekleme
-        
-        self.txtAdd_ogr_no = QLineEdit(self)
-        self.txtAdd_ogr_no.move(100, 100)
-        self.txtAdd_ogr_no.resize(60, 30)
-        self.txtAdd_ogr_no.setPlaceholderText("no")
-        self.txtAdd_ogr_no.setStyleSheet("color : black; background-color : white")
-        self.arr.append(self.txtAdd_ogr_no)
-        
-        
-        self.txtAdd_ogr_isim = QLineEdit(self)
-        self.txtAdd_ogr_isim.move(170, 100)
-        self.txtAdd_ogr_isim.resize(60, 30)
-        self.txtAdd_ogr_isim.setPlaceholderText("isim")
-        self.txtAdd_ogr_isim.setStyleSheet("color : black; background-color : white")
-        
-        self.txtAdd_ogr_soyIsim = QLineEdit(self)
-        self.txtAdd_ogr_soyIsim.move(240, 100)
-        self.txtAdd_ogr_soyIsim.resize(60, 30)
-        self.txtAdd_ogr_soyIsim.setPlaceholderText("soyİsim")
-        self.txtAdd_ogr_soyIsim.setStyleSheet("color : black; background-color : white")
-        
-        
-        self.txtAdd_ogr_sifre = QLineEdit(self)
-        self.txtAdd_ogr_sifre.move(310, 100)
-        self.txtAdd_ogr_sifre.resize(60, 30)
-        self.txtAdd_ogr_sifre.setPlaceholderText("şifre")
-        self.txtAdd_ogr_sifre.setStyleSheet("color : black; background-color : white")
-        
-        self.txtAdd_ogr_ort = QLineEdit(self)
-        self.txtAdd_ogr_ort.move(380, 100)
-        self.txtAdd_ogr_ort.resize(60, 30)
-        self.txtAdd_ogr_ort.setPlaceholderText("ortalama")
-        self.txtAdd_ogr_ort.setStyleSheet("color : black; background-color : white")
-        
-        self.myFont.setPointSize(8)
-        self.btnAdd_ogr = QPushButton(self)
-        self.btnAdd_ogr.setText("Öğrenciyi ekle")
-        self.btnAdd_ogr.setFont(self.myFont)
-        self.btnAdd_ogr.clicked.connect(self.addStudent)
-        self.btnAdd_ogr.setFixedSize(100, 30)
-        self.btnAdd_ogr.move(450, 100)
-        self.btnAdd_ogr.setStyleSheet(
-            "color : black; background-color : white; border-radius: 5px"
-        )
-        
-        self.lblResultAddSt = QLabel("Başarılı", self)
-        self.lblResultAddSt.move(570, 100)
-        self.lblResultAddSt.setFont(self.myFont)
-        self.lblResultAddSt.setStyleSheet("color : white")
-        self.lblResultAddSt.setVisible(False) 
-        
-        
-        
-        
-        # Öğrenci bilgi değiştirme
-        
-        self.txtChangeOgr_no = QLineEdit(self)
-        self.txtChangeOgr_no.move(30, 200)
-        self.txtChangeOgr_no.resize(80, 30)
-        self.txtChangeOgr_no.setPlaceholderText("no girin...")
-        self.txtChangeOgr_no.setStyleSheet("color : black; background-color : white")
-        self.arr.append(self.txtChangeOgr_no)
-        
-        self.cbxChangeOgr = QComboBox(self)
-        self.cbxChangeOgr.move(120, 200)
-        self.cbxChangeOgr.resize(170,30)
-        self.cbxChangeOgr.setStyleSheet("background-color : white")
-        
-        table_name = "ogrenci"
-        cursor = conn.cursor()
-        cursor.execute(f"SELECT column_name FROM information_schema.columns WHERE table_name = '{table_name}'")
-        columns = [row[0] for row in cursor.fetchall()]        
-        cursor.close()
-        
-        del columns[columns.index("transkript")]
-        del columns[columns.index("anlaşma_talep_sayısı")]
-        
-        self.cbxChangeOgr.addItems(columns)
-        self.cbxChangeOgr.setVisible(True)
-
-        
-        self.txtChangeOgr = QLineEdit(self)
-        self.txtChangeOgr.move(310, 200)
-        self.txtChangeOgr.resize(120, 30)
-        self.txtChangeOgr.setPlaceholderText("Yeni değeri girin...")
-        self.txtChangeOgr.setStyleSheet("color : black; background-color : white")
-        self.arr.append(self.txtChangeOgr)
-        
-        self.lblResultChangeSt = QLabel("Başarılı", self)
-        self.lblResultChangeSt.move(570, 200)
-        self.lblResultChangeSt.setFont(self.myFont)
-        self.lblResultChangeSt.setStyleSheet("color : white")
-        self.lblResultChangeSt.setVisible(False) 
-        
-        self.myFont.setPointSize(11)
-        self.btnChange = QPushButton(self)
-        self.btnChange.setText("Güncelle")
-        self.btnChange.setFont(self.myFont)
-        self.btnChange.clicked.connect(self.changeStudent)
-        self.btnChange.setFixedSize(100, 30)
-        self.btnChange.move(450, 200)
-        self.btnChange.setStyleSheet(
-            "color : black; background-color : white; border-radius: 5px")
-        self.arr.append(self.btnChange)
-        
-        
-        
-        
-        # Öğrenci silme
-        self.txtRem_ogr_no = QLineEdit(self)
-        self.txtRem_ogr_no.move(350, 300)
-        self.txtRem_ogr_no.resize(60, 30)
-        self.txtRem_ogr_no.setPlaceholderText("no")
-        self.txtRem_ogr_no.setStyleSheet("color : black; background-color : white")
-        
-        
-        self.myFont.setPointSize(8)
-        self.btnRem_ogr = QPushButton(self)
-        self.btnRem_ogr.setText("Öğrenciyi sil")
-        self.btnRem_ogr.setFont(self.myFont)
-        self.btnRem_ogr.clicked.connect(self.removeStudent)
-        self.btnRem_ogr.setFixedSize(100, 30)
-        self.btnRem_ogr.move(450, 300)
-        self.btnRem_ogr.setStyleSheet(
-            "color : black; background-color : white; border-radius: 5px"
-        )
-        
-        self.lblResultRemoveSt = QLabel("Başarılı", self)
-        self.lblResultRemoveSt.move(570, 300)
-        self.lblResultRemoveSt.setFont(self.myFont)
-        self.lblResultRemoveSt.setStyleSheet("color : white")
-        self.lblResultRemoveSt.setVisible(False) 
-        
-        
-        # Hoca ekleme
-        self.txtAdd_hoca_isim = QLineEdit(self)
-        self.txtAdd_hoca_isim.move(130, 150)
-        self.txtAdd_hoca_isim.resize(60, 30)
-        self.txtAdd_hoca_isim.setPlaceholderText("isim")
-        self.txtAdd_hoca_isim.setStyleSheet("color : black; background-color : white")
-        self.arr.append(self.txtAdd_hoca_isim)
-        
-        
-        self.txtAdd_hoca_soyIsim = QLineEdit(self)
-        self.txtAdd_hoca_soyIsim.move(200, 150)
-        self.txtAdd_hoca_soyIsim.resize(60, 30)
-        self.txtAdd_hoca_soyIsim.setPlaceholderText("soyİsim")
-        self.txtAdd_hoca_soyIsim.setStyleSheet("color : black; background-color : white")
-        self.arr.append(self.txtAdd_hoca_soyIsim)
-        
-        
-        self.txtAdd_hoca_sifre = QLineEdit(self)
-        self.txtAdd_hoca_sifre.move(270, 150)
-        self.txtAdd_hoca_sifre.resize(60, 30)
-        self.txtAdd_hoca_sifre.setPlaceholderText("şifre")
-        self.txtAdd_hoca_sifre.setStyleSheet("color : black; background-color : white")
-        self.arr.append(self.txtAdd_hoca_sifre)
-        
-        self.txtAdd_acilan_ders = QLineEdit(self)
-        self.txtAdd_acilan_ders.move(340, 150)
-        self.txtAdd_acilan_ders.resize(100, 30)
-        self.txtAdd_acilan_ders.setPlaceholderText("verdiği dersler")
-        self.txtAdd_acilan_ders.setStyleSheet("color : black; background-color : white")
-        self.arr.append(self.txtAdd_acilan_ders)
-        
-        self.myFont.setPointSize(8)
-        self.btnAdd_hoca = QPushButton(self)
-        self.btnAdd_hoca.setText("Hocayı ekle")
-        self.btnAdd_hoca.setFont(self.myFont)
-        self.btnAdd_hoca.clicked.connect(self.addTeacher)
-        self.btnAdd_hoca.setFixedSize(100, 30)
-        self.btnAdd_hoca.move(450, 150)
-        self.btnAdd_hoca.setStyleSheet(
-            "color : black; background-color : white; border-radius: 5px"
-        )
-        
-        self.lblResultAddTch = QLabel("Başarılı", self)
-        self.lblResultAddTch.move(570, 150)
-        self.lblResultAddTch.setFont(self.myFont)
-        self.lblResultAddTch.setStyleSheet("color : white")
-        self.lblResultAddTch.setVisible(False) 
-        
-        
-        
-        # Hoca bilgi değiştirme
-        self.txtChange_hoca_sicil_no = QLineEdit(self)
-        self.txtChange_hoca_sicil_no.move(30, 250)
-        self.txtChange_hoca_sicil_no.resize(80, 30)
-        self.txtChange_hoca_sicil_no.setPlaceholderText("sicil no girin...")
-        self.txtChange_hoca_sicil_no.setStyleSheet("color : black; background-color : white")
-        self.arr.append(self.txtChange_hoca_sicil_no)
-        
-        
-        self.cbxChangeHoca = QComboBox(self)
-        self.cbxChangeHoca.move(120, 250)
-        self.cbxChangeHoca.resize(170,30)
-        self.cbxChangeHoca.setStyleSheet("background-color : white")
-        
-        table_name = "hoca"
-        cursor = conn.cursor()
-        cursor.execute(f"SELECT column_name FROM information_schema.columns WHERE table_name = '{table_name}'")
-        columns = [row[0] for row in cursor.fetchall()]        
-        cursor.close()
-        
-        del columns[columns.index("ilgi_alanları")]
-        del columns[columns.index("açılan_dersler")]
-        del columns[columns.index("kriter_dersler")]
-        
-        self.cbxChangeHoca.addItems(columns)
-        self.cbxChangeHoca.setVisible(True)
-        
-        self.txtChangeHoca = QLineEdit(self)
-        self.txtChangeHoca.move(310, 250)
-        self.txtChangeHoca.resize(120, 30)
-        self.txtChangeHoca.setPlaceholderText("Yeni değeri girin...")
-        self.txtChangeHoca.setStyleSheet("color : black; background-color : white")
-        self.arr.append(self.txtChangeHoca)
-        
-        self.lblResultChangeTch = QLabel("Başarılı", self)
-        self.lblResultChangeTch.move(570, 250)
-        self.lblResultChangeTch.setFont(self.myFont)
-        self.lblResultChangeTch.setStyleSheet("color : white")
-        self.lblResultChangeTch.setVisible(False)
-        
-        self.myFont.setPointSize(11)
-        self.btnChangeHoca = QPushButton(self)
-        self.btnChangeHoca.setText("Güncelle")
-        self.btnChangeHoca.setFont(self.myFont)
-        self.btnChangeHoca.clicked.connect(self.changeTeacher)
-        self.btnChangeHoca.setFixedSize(100, 30)
-        self.btnChangeHoca.move(450, 250)
-        self.btnChangeHoca.setStyleSheet(
-            "color : black; background-color : white; border-radius: 5px")
-        
-        
-        # Hoca Silme  
-        self.txtRemove_hoca_sicil_no = QLineEdit(self)
-        self.txtRemove_hoca_sicil_no.move(350, 350)
-        self.txtRemove_hoca_sicil_no.resize(80, 30)
-        self.txtRemove_hoca_sicil_no.setPlaceholderText("sicil no")
-        self.txtRemove_hoca_sicil_no.setStyleSheet("color : black; background-color : white")
-        
-        self.myFont.setPointSize(11)
-        self.btnRemoveHoca = QPushButton(self)
-        self.btnRemoveHoca.setText("Hocayı sil")
-        self.btnRemoveHoca.setFont(self.myFont)
-        self.btnRemoveHoca.clicked.connect(self.removeTeacher)
-        self.btnRemoveHoca.setFixedSize(100, 30)
-        self.btnRemoveHoca.move(450, 350)
-        self.btnRemoveHoca.setStyleSheet(
-            "color : black; background-color : white; border-radius: 5px")
-        
-        self.lblResultRemoveTch = QLabel("Başarılı", self)
-        self.lblResultRemoveTch.move(570, 350)
-        self.lblResultRemoveTch.setFont(self.myFont)
-        self.lblResultRemoveTch.setStyleSheet("color : white")
-        self.lblResultRemoveTch.setVisible(False) 
-        
-        
-        # İlgi alanı ekleme
-        self.txtAddİlgi_alani = QLineEdit(self)
-        self.txtAddİlgi_alani.move(320, 400)
-        self.txtAddİlgi_alani.resize(100, 30)
-        self.txtAddİlgi_alani.setPlaceholderText("ilgi alanı")
-        self.txtAddİlgi_alani.setStyleSheet("color : black; background-color : white")
-        
-        self.myFont.setPointSize(9)
-        self.btnAddİlgi_alani = QPushButton(self)
-        self.btnAddİlgi_alani.setText("İlgi alanı ekle")
-        self.btnAddİlgi_alani.setFont(self.myFont)
-        self.btnAddİlgi_alani.clicked.connect(self.addIlgi_alani)
-        self.btnAddİlgi_alani.setFixedSize(100, 30)
-        self.btnAddİlgi_alani.move(450, 400)
-        self.btnAddİlgi_alani.setStyleSheet(
-            "color : black; background-color : white; border-radius: 5px")
-        
-        
-        self.lblResultAddIlgi_alani = QLabel("Başarılı", self)
-        self.lblResultAddIlgi_alani.move(570, 400)
-        self.lblResultAddIlgi_alani.setFont(self.myFont)
-        self.lblResultAddIlgi_alani.setStyleSheet("color : white")
-        self.lblResultAddIlgi_alani.setVisible(False)
-        
-        
-        # İlgi alanı sil
-        self.txtRemoveİlgi_alani = QLineEdit(self)
-        self.txtRemoveİlgi_alani.move(320, 450)
-        self.txtRemoveİlgi_alani.resize(100, 30)
-        self.txtRemoveİlgi_alani.setPlaceholderText("ilgi alanı")
-        self.txtRemoveİlgi_alani.setStyleSheet("color : black; background-color : white")
-        
-        self.myFont.setPointSize(11)
-        self.btnRemoveİlgi_alani = QPushButton(self)
-        self.btnRemoveİlgi_alani.setText("İlgi alanı sil")
-        self.btnRemoveİlgi_alani.setFont(self.myFont)
-        self.btnRemoveİlgi_alani.clicked.connect(self.removeIlgi_alani)
-        self.btnRemoveİlgi_alani.setFixedSize(100, 30)
-        self.btnRemoveİlgi_alani.move(450, 450)
-        self.btnRemoveİlgi_alani.setStyleSheet(
-            "color : black; background-color : white; border-radius: 5px")
-         
-        self.lblRemoveIlgi_alani = QLabel("Başarılı", self)
-        self.lblRemoveIlgi_alani.move(570, 450)
-        self.lblRemoveIlgi_alani.setFont(self.myFont)
-        self.lblRemoveIlgi_alani.setStyleSheet("color : white")
-        self.lblRemoveIlgi_alani.setVisible(False)
-        
-        
-        self.lblResultRemoveIlgi_alani = QLabel("Başarılı", self)
-        self.lblResultRemoveIlgi_alani.move(570, 450)
-        self.lblResultRemoveIlgi_alani.setFont(self.myFont)
-        self.lblResultRemoveIlgi_alani.setStyleSheet("color : white")
-        self.lblResultRemoveIlgi_alani.setVisible(False)
-        
-    def addStudent(self):
-        ogr_no = self.txtAdd_ogr_no.text()  
-        isim = self.txtAdd_ogr_isim.text()
-        soyİsim = self.txtAdd_ogr_soyIsim.text()
-        sifre = self.txtAdd_ogr_sifre.text()
-        ortalama = self.txtAdd_ogr_ort.text()
-        
-        self.txtAdd_ogr_no.setText = ""
-        self.txtAdd_ogr_isim.setTextext = ""
-        self.txtAdd_ogr_soyIsim.setText = ""
-        self.txtAdd_ogr_sifre.setText = ""
-        self.txtAdd_ogr_ort.setText = ""
-        
-        try:
-            cursor = conn.cursor()
-            cursor.execute('''
-                INSERT INTO ogrenci (ogrenci_no, isim, soy_isim, genel_not_ortalaması, şifre)
-                VALUES (%s, %s, %s, %s, %s) ''', (ogr_no, isim, soyİsim, ortalama, sifre))
-            cursor.close()
-            
-            
-            self.lblResultAddSt.setVisible(True)
-            
-        except:
-            self.lblResultAddSt.setText = "Hata"
-            self.lblResultAddSt.setVisible(True)
-        
-        
-    def changeStudent(self):
-        changeItem = self.cbxChangeOgr.currentText()
-        no = self.txtChangeOgr_no.text()
-        new_value = self.txtChangeOgr.text()
-        
-        self.txtChangeOgr_no.setText = ""
-        self.txtChangeOgr.setText = ""
-        
-        try:
-            cur = conn.cursor()
-            query = f"UPDATE \"ogrenci\" SET {changeItem} = %s WHERE ogrenci_no = %s"
-            cur.execute(query, (str(new_value), str(no)))
-            cur.close()
-
-            self.lblResultChangeSt.setVisible(True)
-
-        except:
-            self.lblResultChangeSt.setText = "Hata"
-            self.lblResultChangeSt.setVisible(True)
-            
-    def removeStudent(self):
-        no = self.txtRem_ogr_no.text()
-        
-        self.txtRem_ogr_no.setText = "" 
-        try:
-            cursor = conn.cursor()
-            query = f"DELETE FROM ogrenci WHERE ogrenci_no = {no}"
-            cursor.execute(query)
-            cursor.close()
-            
-            self.lblResultRemoveSt.setVisible(True)
-            
-        except:
-            self.lblResultRemoveSt.setText = "Hata"
-            self.lblResultRemoveSt.setVisible(True)
-    
-    
-    def addTeacher(self):
-        isim = self.txtAdd_hoca_isim.text()
-        soy_isim = self.txtAdd_hoca_soyIsim.text()
-        sifre = self.txtAdd_hoca_sifre.text()
-        acilan_dersler = self.txtAdd_acilan_ders.text()
-        
-        self.txtAdd_hoca_isim.setText = ""
-        self.txtAdd_hoca_soyIsim.setText = ""
-        self.txtAdd_hoca_sifre.setText = ""
-        self.txtAdd_acilan_ders.setText = ""
-        
-        try:
-            cursor = conn.cursor()
-            cursor.execute('''
-                INSERT INTO hoca (isim, soy_isim, şifre, açılan_dersler)
-                VALUES (%s, %s, %s, %s) ''', (isim, soy_isim, sifre, acilan_dersler))
-            cursor.close()
-
-            self.lblResultAddTch.setVisible(True)
-        
-        except:
-            self.lblResultAddTch.setText = "Hata"
-            self.lblResultAddTch.setVisible(True)
-            
-    
-    def changeTeacher(self):
-        sicil_no = self.txtChange_hoca_sicil_no.text()
-        changeItem = self.cbxChangeHoca.currentText()
-        newValue = self.txtChangeHoca.text()
-        
-        self.txtChange_hoca_sicil_no.setText = ""
-        self.txtChangeHoca.setText = ""
-        
-        try:
-            cur = conn.cursor()
-            query = f"UPDATE \"hoca\" SET {changeItem} = %s WHERE sicil_numarası = %s"
-            cur.execute(query, (str(newValue), str(sicil_no)))
-            cur.close()
-            
-            self.lblResultChangeTch.setVisible(True)
-        
-        except:
-            self.lblResultChangeTch.setText = "Hata"
-            self.lblResultChangeTch.setVisible(True)
-       
-            
-    def removeTeacher(self):
-        sicil_no = self.txtRemove_hoca_sicil_no.text()
-        self.txtRemove_hoca_sicil_no.setText = ""
-      
-        try:
-            cursor = conn.cursor()
-            query = f"DELETE FROM hoca WHERE sicil_numarası = {sicil_no}"
-
-            cursor.execute(query)
-            cursor.close()
-            
-            self.lblResultRemoveTch.setVisible(True)
-            
-        except:
-            self.lblResultRemoveTch.setText = "Hata"
-            self.lblResultRemoveTch.setVisible(True)
-      
-    
-    
-    def addIlgi_alani(self):
-        ilgi_alani = self.txtAddİlgi_alani.text()
-        self.txtAddİlgi_alani.setText = ""
-        
-        try:
-            cursor = conn.cursor()
-            sql = "INSERT INTO ilgialanlari (ilgi_alanı) VALUES (%s)"
-            cursor.execute(sql, (ilgi_alani,))
-            cursor.close()
-            
-            self.lblResultAddIlgi_alani.setVisible(True)
-        
-        except:
-            self.lblResultAddIlgi_alani.setText = "Hata"
-            self.lblResultAddIlgi_alani.setVisible(True)
-        
-        
-    def removeIlgi_alani(self):
-        ilgi_alani = self.txtRemoveİlgi_alani.text()
-        self.txtRemoveİlgi_alani.setText = ""
-        
-        try:
-            cursor = conn.cursor()
-            query = f"DELETE FROM ilgialanlari WHERE ilgi_alanı = %s"
-            cursor.execute(query, (ilgi_alani,))
-            cursor.close()
-            
-            self.lblRemoveIlgi_alani.setVisible(True)
-
-        except Exception:
-            print(Exception)
-            self.lblRemoveIlgi_alani.setText = "Hata"
-            self.lblRemoveIlgi_alani.setVisible(True)
-      
-      
     def setlblTitleText(self, text):
             self.lblTitle.setText(text)
 
-            
-            
+    
     def talep_sayilari_onay(self):
 
         for row, ders_adi in enumerate(self.dersler):
@@ -734,88 +262,149 @@ class AdminPanel(QWidget):
             cur.execute(query, (str(text), str(ders_adi)))
             cur.close()
                     
-        mesaj_karakter = self.txtChar.text()
-        cur = conn.cursor()
-        query = "UPDATE \"yonetici\" SET mesajlaşma_karakter_sayısı = %s"
-        cur.execute(query, (mesaj_karakter,))
-        cur.close()
+        self.talep_hoca_tablosu.close()
+        self.btntalep_hoca.close()
         
-        
-        talep_onay = self.txtConfirmNum.text()
-        cur = conn.cursor()
-        query = "UPDATE \"yonetici\" SET bir_hoca_kac_talep_onaylayabilir = %s"
-        cur.execute(query, (talep_onay,))
-        cur.close()
-        
-        
-        time = self.txtTime.text()
-        cur = conn.cursor()
-        query = "UPDATE \"yonetici\" SET aşama_süresi = %s"
-        cur.execute(query, (time,))
-        cur.close()
-        
-        
-        self.talep_hoca_tablosu.setVisible(False)
-        self.btntalep_hoca.setVisible(False)
-        self.lblChar.setVisible(False)
-        self.txtChar.setText = ""
-        self.txtChar.setVisible(False)
-        self.lblConfirmNum.setVisible(False)
-        self.txtConfirmNum.setText = ""
-        self.txtConfirmNum.setVisible(False)
-        self.lblTime.setVisible(False)
-        self.lblTime.setText = ""
-        self.txtTime.setVisible(False)
-        
-        
-        
-        
-        
-    
-    def start(self):
-        char = self.txtChar.text()
-        cur = conn.cursor()
-        query = "UPDATE \"yonetici\" SET mesajlaşma_karakter_sayısı = %s WHERE kullanıcı_adı = %s"
-        cur.execute(query,(char, 'admin'))
-        cur.close()
-    
-    
+
 # Öğrenci Paneli
-class StudentPanel(QWidget):
+class StudentPanel(QMainWindow):
     def __init__(self):
         super().__init__()
         self.initUI()
         self.table_visible = True
+        
+        
 
     def initUI(self):
         self.arr = []
 
-        self.setStyleSheet("background-color: rgb(140, 0, 0);")
+        self.setStyleSheet("background-color: rgb(10, 84, 50);")
 
-        self.myFont = QFont("Arial", 20)
-        self.myFont.setBold(True)
-        self.setWindowTitle("Öğrenci Paneli")
-        self.move(600, 200)
-        self.setFixedSize(1280, 720)
+        self.setWindowTitle("KOU Öğrenci")
+        self.setGeometry(100, 100, 1200, 600)
+        
+        self.central_widget = QTabWidget(self)
+        self.setCentralWidget(self.central_widget)
+        
+        self.courses_tab = QWidget()
+        self.courses_layout = QVBoxLayout(self.courses_tab)
+        self.course_list = QListWidget()
+        self.btn_load_pdf = QPushButton("Transkript Yükle")
+        self.btn_load_pdf.setStyleSheet("color: white; font-weight: bold; background-color: rgb(6, 51, 29);")
+        self.btn_load_pdf.clicked.connect(self.load_pdf)
+        self.courses_layout.addWidget(self.btn_load_pdf)
+        self.courses_layout.addWidget(self.course_list)
+        self.central_widget.addTab(self.courses_tab, "Aldığım Dersler")
 
-        self.lblTitle = QLabel("Öğrenci Paneli", self)
-        self.lblTitle.move(10, 10)
-        self.myFont.setPointSize(12)
-        self.lblTitle.setFont(self.myFont)
-        self.lblTitle.setStyleSheet("color : white")
+        self.btn_load_pdf.clicked.connect(self.load_pdf)
+       
+        self.professors_tab = QWidget()
+        self.professors_layout = QVBoxLayout(self.professors_tab)
+        self.professor_list = QListWidget()
+        self.btn_sec= QPushButton("DERS SEÇ")
+        self.btn_sec.setStyleSheet("color: white; font-weight: bold; background-color: rgb(6, 51, 29);")
+       # self.btn_sec.setStyleSheet("background-color: rgb(6, 51, 29);")
+        self.professors_layout.addWidget(self.btn_sec)
+        self.professors_layout.addWidget(self.professor_list)
+        self.central_widget.addTab(self.professors_tab, "Ders Alabileceğim Hocalar")
+        
+        
+        # DERS TALEBİ İÇİN
+        self.request_tab = QWidget()
+        self.request_layout = QVBoxLayout(self.request_tab)
+        self.request_list = QListWidget()
+        self.request_btn = QPushButton("TALEP OLUŞTUR")
+        self.request_btn.setStyleSheet("color: white; font-weight: bold; background-color: rgb(6, 51, 29)")
+        self.request_layout.addWidget(self.request_btn)
+        self.request_layout.addWidget(self.request_list)
+        self.central_widget.addTab(self.request_tab, "Ders Talebi Oluştur")
 
-        self.myFont.setPointSize(11)
-        self.btn_load_pdf = QPushButton(self)
+        #self.request_input = QLineEdit()
+        #self.request_layout.addWidget(self.request_input)
+
+        def create_request():
+            request_text = self.request_input.text()
+            if request_text:
+                # Talep oluştur işlemini burada gerçekleştirin
+                self.request_list.addItem(request_text)
+                # İşte burada bu talebi veritabanına veya başka bir yere kaydetmek isterseniz student_panel.talep_olustur işlevini çağırabilirsiniz.
+                # Örnek olarak: student_panel.talep_olustur(210202103, request_text)
+
+                # Kullanıcının girdiği metni temizle
+                self.request_input.clear()
+
+        self.request_btn.clicked.connect(create_request)
+
+        self.delete_req_btn = QPushButton("Talebi Sil")
+        self.request_layout.addWidget(self.delete_req_btn)
+
+        # MESAJLAŞMA SEKMESİ
+        self.message_tab = QWidget()
+        self.message_layout = QVBoxLayout()
+        self.message_list = QListWidget()
+
+        self.message_btn = QPushButton("Mesaj gönder")
+        self.message_btn.setIcon(QIcon("/Users/aslinurtopcu/Desktop/send.png"))  # İkon dosyanızın yolunu belirtin
+        self.message_btn.setStyleSheet("color: white; font-weight: bold; background-color: rgb(6, 51, 29)")
+
+        self.send_message_btn = QPushButton("Mesaj Yolla")
+        self.message_input = QLineEdit()  # Metin girişi için QLineEdit
+
+        # Akademisyen seçimi için bir açılır menü ekleyin
+        self.academician_combo = QComboBox()
+        academician_list = ["Akademisyen 1", "Akademisyen 2", "Akademisyen 3"]  # Akademisyenlerin listesi
+        self.academician_combo.addItems(academician_list)
+
+        button_layout = QHBoxLayout()
+        button_layout.addWidget(self.message_btn)
+        button_layout.addWidget(self.academician_combo)  # Akademisyen seçimini ekleyin
+        button_layout.addWidget(self.send_message_btn)
+
+        self.message_tab.setLayout(self.message_layout)
+        self.message_layout.addWidget(self.message_input)
+        self.message_layout.addLayout(button_layout)
+        self.message_layout.addWidget(self.message_list)
+        self.central_widget.addTab(self.message_tab, "Mesaj Gönder")
+
+        def send_message():
+            message_text = self.message_input.text()
+            selected_academician = self.academician_combo.currentText()  # Seçilen akademisyeni alın
+            if message_text:
+            # İşte burada bu mesajı veritabanına veya başka bir yere kaydetmek isterseniz student_panel.mesaj_gonder işlevini çağırabilirsiniz.
+            # Öğrenci numarası ve seçilen akademisyeni kullanarak mesaj gönderme işlemi yapabilirsiniz.
+                student_panel.mesaj_gonder(ogrenci_no, selected_academician, message_text)
+
+                self.message_list.addItem(f"Gönderilen ({selected_academician}): {message_text}")  # Gönderilen mesajları görüntüle
+                self.message_input.clear()
+
+        self.message_btn.clicked.connect(send_message)
+
+        self.show_message_btn = QPushButton("Mesajları Göster")
+        button_layout.addWidget(self.show_message_btn)
+
+        def show_messages():
+            # İşte burada gelen mesajları görüntülemek isterseniz student_panel.mesajlari_getir işlevini çağırabilirsiniz.
+            messages = student_panel.mesajlari_getir(ogrenci_no)
+            for message in messages:
+                self.message_list.addItem("Gelen: " + message)
+
+        self.show_message_btn.clicked.connect(show_messages)
+
+
+
+        
+        
+        """self.btn_load_pdf = QPushButton(self)
         self.btn_load_pdf.setText("Transkript Yükle")
         self.btn_load_pdf.setFont(self.myFont)
         self.btn_load_pdf.setFixedSize(180, 50)
         self.btn_load_pdf.move(10, 50)
         self.btn_load_pdf.setStyleSheet(
-            "color : black; background-color : white; border-radius: 5px"
-        )
-        self.btn_load_pdf.clicked.connect(self.load_pdf)
-
-        self.myFont.setPointSize(11)
+            "color : black; background-color : white; border-radius: 5px" 
+        )"""
+        
+        
+        """self.myFont.setPointSize(11)
         self.btn_sec = QPushButton(self)
         self.btn_sec.setText("Seçim Yap")
         self.btn_sec.setFont(self.myFont)
@@ -823,7 +412,7 @@ class StudentPanel(QWidget):
         self.btn_sec.move(200, 50)
         self.btn_sec.setStyleSheet(
             "color : black; background-color : white; border-radius: 5px"
-            )
+            )"""
         self.btn_sec.setVisible(False)
         
         
@@ -835,23 +424,32 @@ class StudentPanel(QWidget):
 
     # Yerel dosyalardan pdf dosyası seçme
     def load_pdf(self):
-        options = QFileDialog.Options()
-        options |= QFileDialog.ReadOnly
-
-        pdf_file, _ = QFileDialog.getOpenFileName(
-            self,
-            "PDF Dosyasını Seç",
-            "",
-            "PDF Dosyaları (*.pdf);;Tüm Dosyalar (*)",
-            options=options,
-        )
+        dosya_diyalog = QFileDialog()
+        dosya_yolu, _ = dosya_diyalog.getOpenFileName()
+        if dosya_yolu:
+            print(f"Seçilen dosya: {dosya_yolu}")
+            pdf_file, _ = QFileDialog.getOpenFileName(parent=None, caption="Select a PDF file", directory='', filter="PDF Files (*.pdf)")
 
         self.btn_load_pdf.close()
         self.btn_sec.setVisible(True)
-        self.myFont.setPointSize(11)
+       # self.myFont.setPointSize(11)
         self.btn_toggle_table = QPushButton(self)
         self.btn_toggle_table.setText("Transkript Göster")
-        self.btn_toggle_table.setFont(self.myFont)
+        #self.btn_toggle_table.setFont(18)
+        self.btn_toggle_table.setFixedSize(180, 50)
+        self.btn_toggle_table.move(10, 50)
+        self.btn_toggle_table.setStyleSheet("color : black; background-color : white; border-radius: 5px")
+        self.btn_toggle_table.clicked.connect(self.toggle_table)
+        self.btn_toggle_table.setVisible(True)
+        self.read_transcript(pdf_file)
+
+
+        self.btn_load_pdf.close()
+        self.btn_sec.setVisible(True)
+        #self.myFont.setPointSize(11)
+        self.btn_toggle_table = QPushButton(self)
+        self.btn_toggle_table.setText("Transkript Göster")
+       # self.btn_toggle_table.setFont(self.myFont)
         self.btn_toggle_table.setFixedSize(180, 50)
         self.btn_toggle_table.move(10, 50)
         self.btn_toggle_table.setStyleSheet(
@@ -955,6 +553,8 @@ class StudentPanel(QWidget):
 
     def setlblTitleText(self, text):
         self.lblTitle.setText(text)
+        
+
 
 # Hoca Paneli
 class TeacherPanel(QWidget):
@@ -1012,27 +612,167 @@ class Transcript(QWidget):
             for col, value in enumerate(lesson.values()):
                 item = QTableWidgetItem(str(value))
                 self.tableWidget.setItem(row, col, item)
+        
+        
+#ÖĞRENCİ GİRİŞİ İÇİN *******************************************************************************************************
+
+class StudentLoginWindow(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.show
+        self.setWindowTitle("Öğrenci Girişi")
+        self.setGeometry(100, 100, 1200, 600)
+        self.init_ui()
+
+    def init_ui(self):
+        background_image = QPixmap("/Users/aslinurtopcu/Desktop/wallpapers/simon.jpg")
+        background_label = QLabel(self)
+        background_label.setPixmap(background_image)
+        background_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.setCentralWidget(background_label)
+
+        frame = QWidget()
+        frame.setStyleSheet("background-color: rgba(255, 255, 255, 150);")
+        frame.setFixedSize(400, 300)
+
+        self.setCentralWidget(frame)
+
+        self.student_no_label = QLabel("Öğrenci Numarası:", frame)
+        self.student_no_input = QLineEdit(frame)
+        self.password_label = QLabel("Şifre:", frame)
+        self.password_input = QLineEdit(frame)
+        self.password_input.setEchoMode(QLineEdit.EchoMode.Password)
+
+        self.login_btn = QPushButton("Giriş", frame)
+        self.login_btn.setIcon(QIcon("/Users/aslinurtopcu/Desktop/StuIkon.png"))
+
+        self.login_btn.clicked.connect(self.login)
+
+        layout = QVBoxLayout()
+        layout.addWidget(self.student_no_label)
+        layout.addWidget(self.student_no_input)
+        layout.addWidget(self.password_label)
+        layout.addWidget(self.password_input)
+        layout.addWidget(self.login_btn)
+
+        frame.setLayout(layout)
+
+    def login(self):
+        student_no = self.student_no_input.text()
+        password = self.password_input.text()
+
+        if self.validate_student_credentials(student_no, password):
+            print("Öğrenci girişi başarılı")
+            self.open_student_panel()
+        else:
+            print("Başarısız öğrenci girişi")
+            self.show_error_message("Giriş başarısız!")
+
+    def validate_student_credentials(self, student_no, password):
+        conn = psycopg2.connect(
+            database="postgres",
+            user="aslinurtopcu",
+            password="sifre",
+            host="localhost",
+            port="5432"
+        )
+        cursor = conn.cursor()
+
+        cursor.execute("SELECT ogrenci_no, sifre FROM ogrenci WHERE ogrenci_no = %s AND sifre = %s", (student_no, password))
+        result = cursor.fetchone()
+
+        conn.close()
+
+        return result is not None
+
+    def open_student_panel(self):
+        self.hide()
+        self.student_panel = StudentPanel()
+        self.student_panel.show()
+
+    def show_error_message(self, message):
+        pass
 
 
-# Veritabanı bağlantısı
+
+# Veritabanı bağlantısı***************************************
 conn = psycopg2.connect(
-<<<<<<< HEAD
+
     database="postgres",
-    user="postgres",
-    password="yazlab1",
-    host="127.0.0.1",
+    user="aslinurtopcu",
+    password="çilek",
+    host="localhost",
     port="5432",
 )
 conn.autocommit = True
-=======
-        host="localhost",  
-        database="postgres",  
-        user="aslinurtopcu",  
-        password="çilek"  
-    )
->>>>>>> 3a176a8 (libraries installed and gitignore file updated)
 
-# PyQt uygulamasını başlat
+cursor = conn.cursor()
+
+
+        
+#UYGULAMA GİRİŞ EKRANI****************************** 
+
+class LoginScreen(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.initUI()
+
+    def initUI(self):
+        self.setWindowTitle("Giriş Ekranı")
+        self.setGeometry(100, 100, 1200, 600)
+
+    
+        layout = QVBoxLayout(self)
+        background_image_path = "/Users/aslinurtopcu/Desktop/wallpapers/kocaeliUni.jpeg"
+        background_image = QPixmap(background_image_path)
+        background_label = QLabel(self)
+        background_label.setPixmap(background_image)
+        layout.addWidget(background_label)
+
+        self.lblTitle = QLabel("KOCAELİ ÜNİVERSİTESİ DERS KAYIT SİSTEMİNE HOŞ GELDİNİZ", self)
+        self.lblTitle.setStyleSheet("font-size: 30px; color: white; text-align: center;")
+        layout.addWidget(self.lblTitle)
+
+        self.btnStudent = QPushButton("Öğrenci Girişi", self)
+        self.btnStudent.setStyleSheet("font-size: 20px;")
+        self.btnStudent.clicked.connect(self.openStudentPanel)
+        layout.addWidget(self.btnStudent)
+
+        self.btnTeacher = QPushButton("Hoca Girişi", self)
+        self.btnTeacher.setStyleSheet("font-size: 20px;")
+        self.btnTeacher.clicked.connect(self.openTeacherPanel)
+        layout.addWidget(self.btnTeacher)
+
+        self.btnAdmin = QPushButton("Yönetici Girişi", self)
+        self.btnAdmin.setStyleSheet("font-size: 20px;")
+        self.btnAdmin.clicked.connect(self.openAdminPanel)
+        layout.addWidget(self.btnAdmin)
+
+    def openStudentPanel(self):
+        print("Öğrenci Paneline Yönlendiriliyor")
+        self.student_login_window = StudentLoginWindow()  # Öğrenci girişi ekranı penceresini oluştur
+        self.student_login_window.show()  # Pencereyi görüntüle
+        
+
+    def openTeacherPanel(self):
+        print("Hoca Paneline Yönlendiriliyor")
+        self.teacher_panel = TeacherPanel()
+        self.teacher_panel.show()
+
+    def openAdminPanel(self):
+        print("Yönetici Paneline Yönlendiriliyor")
+        self.admin_panel = AdminPanel()
+        self.admin_panel.show()
+
+if __name__ == "__main__":
+    app = QApplication([])
+    loginScreen = LoginScreen()
+    loginScreen.show()
+    app.exec()
+
+
+
+#PyQt uygulamasını başlat*************************************
 app = QApplication(sys.argv)
 
 loginStudentPanel = LoginPanel("Öğrenci", 1250, "Öğrenci Numarası")
@@ -1047,6 +787,8 @@ loginAdminPanel.show()
 student_panel = StudentPanel()
 teacher_panel = TeacherPanel()
 admin_panel = AdminPanel()
+
+
 
 def login_check(panel, table, txtUserName):
     userName = panel.txtUserName.text()
@@ -1080,9 +822,8 @@ def login_student():
 
 
 def login_teacher():
-    results = login_check(loginTeacherPanel, "hoca", "sicil_numarası")
-    if results:
-        teacher_name = "Hoca Paneli - " + results[0][0] + " " + results[0][1]
+    results = login_check(loginTeacherPanel, "hoca", "sicil_no")
+    teacher_name = "Hoca Paneli - " + results[0][0] + " " + results[0][1]
     if len(results):
         t = threading.Thread(target=teacher_panel.setlblTitleText, args=(teacher_name,))
         t.start()
@@ -1099,8 +840,7 @@ def login_teacher():
 
 def login_admin():
     results = login_check(loginAdminPanel, "yonetici", "kullanıcı_adı")
-    if results:
-        admin_name = "Yönetici Paneli - " + results[0][1]
+    admin_name = "Yönetici Paneli - " + results[0][1]
     if len(results):
         t = threading.Thread(target=admin_panel.setlblTitleText, args=(admin_name,))
         t.start()
@@ -1120,16 +860,6 @@ loginStudentPanel.btnLogIn.clicked.connect(login_student)
 loginTeacherPanel.btnLogIn.clicked.connect(login_teacher)
 loginAdminPanel.btnLogIn.clicked.connect(login_admin)
 
-sys.exit(app.exec_())
-
-
-
-<<<<<<< HEAD
-=======
-
-student_panel = StudentPanel()
-student_panel.show()
 
 
 sys.exit(app.exec())
->>>>>>> 3a176a8 (libraries installed and gitignore file updated)
