@@ -16,8 +16,10 @@ from PyQt5.QtWidgets import (
     QTableWidgetItem,
     QComboBox,
     QVBoxLayout,
-    QMainWindow
+    QMainWindow,
+    QTextEdit
 )
+import time
 from PyQt5.QtGui import QFont, QPixmap
 import threading
 
@@ -138,7 +140,7 @@ class StudentLoginWindow(QMainWindow):
 
         if self.validate_student_credentials(student_no, password):
             print("Öğrenci girişi başarılı")
-            self.open_student_panel()
+            self.open_student_panel(student_no)
         else:
             print("Başarısız öğrenci girişi")
             self.show_error_message("Giriş başarısız!")
@@ -153,9 +155,9 @@ class StudentLoginWindow(QMainWindow):
 
         return result is not None
 
-    def open_student_panel(self):
+    def open_student_panel(self, student_no):
         self.hide()
-        self.student_panel = StudentPanel()
+        self.student_panel = StudentPanel(student_no)
         self.student_panel.show()
 
     def show_error_message(self, message):
@@ -885,8 +887,9 @@ class AdminPanel(QWidget):
         
 # Öğrenci Paneli
 class StudentPanel(QWidget):
-    def __init__(self):
+    def __init__(self, ogrenci_no):
         super().__init__()
+        self.ogrenci_no = ogrenci_no
         self.initUI()
         self.table_visible = True
 
@@ -964,6 +967,20 @@ class StudentPanel(QWidget):
         )
         self.btn_inmail.setVisible(False)
         self.btn_inmail.clicked.connect(self.in_mail)
+
+
+        self.myFont.setPointSize(11)
+        self.btn_talepler = QPushButton(self)
+        self.btn_talepler.setText("Taleplerim")
+        self.btn_talepler.setFont(self.myFont)
+        self.btn_talepler.setFixedSize(180, 50)
+        self.btn_talepler.move(990, 50)
+        self.btn_talepler.setStyleSheet(
+            "color : black; background-color : white; border-radius: 5px"
+        )
+        self.btn_inmail.setVisible(False)
+        self.btn_inmail.clicked.connect(self.talep_listele)
+
 
         # Ders Seçim Tablosu
         self.lessonTable = QTableWidget(self)
@@ -1125,10 +1142,150 @@ class StudentPanel(QWidget):
         pass
 
     def send_message(self):
-        pass
+        self.mesaj_gonder_panel = Ogrenci_Mesaj_Gonder(self.ogrenci_no)
+        self.mesaj_gonder_panel.show()
 
     def in_mail(self):
+        self.gelen_mesaj_panel = Ogrenci_Gelen_Mesaj(self.ogrenci_no)
+        self.gelen_mesaj_panel.show()
+
+    def talep_listele(self):
         pass
+    
+    
+class Ogrenci_Mesaj_Gonder(QWidget):
+    def __init__(self, ogrenci_no):
+        super().__init__()
+        self.ogrenci_no = ogrenci_no
+        
+        self.setStyleSheet("background-color: rgb(140, 0, 0);")
+        self.myFont = QFont("Arial", 8)
+        self.myFont.setBold(True)
+        self.setWindowTitle("Hocaya mesaj gönder")
+        self.move(900, 300)
+        self.setFixedSize(600, 400)
+        
+        
+        self.lblTitle = QLabel("Hocaya Mesaj Gönder",self)
+        self.lblTitle.move(10, 10)
+        self.myFont.setPointSize(8)
+        self.lblTitle.setFont(self.myFont)
+        self.lblTitle.setStyleSheet("color : white")
+        self.lblTitle.setFixedSize(300,30)
+
+        self.myFont.setPointSize(9)
+        self.txtMesaj = QTextEdit(self)
+        self.txtMesaj.move(10, 50)
+        self.txtMesaj.resize(580, 200)
+        self.txtMesaj.setPlaceholderText("Mesajınızı girin...")
+        self.txtMesaj.setStyleSheet("color : black; background-color : white")
+
+        self.txtsicil_no = QLineEdit(self)
+        self.txtsicil_no.move(250, 260)
+        self.txtsicil_no.resize(100, 30)
+        self.txtsicil_no.setPlaceholderText("sicil no")
+        self.txtsicil_no.setStyleSheet("color : black; background-color : white")
+        
+        self.btnGonder = QPushButton(self)
+        self.btnGonder.setText("Mesajı Gönder")
+        self.btnGonder.setFont(self.myFont)
+        self.btnGonder.setFixedSize(120, 50)
+        self.btnGonder.move(230, 330)
+        self.btnGonder.setStyleSheet(
+            "color : black; background-color : white; border-radius: 5px"
+        )
+        self.btnGonder.clicked.connect(self.gonder)
+        
+        
+        self.myFont.setPointSize(8)
+        self.lblMsgResult = QLabel("Mesaj Gönderildi", self)
+        self.lblMsgResult.move(230, 310)
+        self.lblMsgResult.setFont(self.myFont)
+        self.lblMsgResult.setStyleSheet("color : white")
+        self.lblMsgResult.setVisible(False)
+        
+        
+    def setlblText(self):
+        self.txtMesaj.setText("")
+        self.txtsicil_no.setText("")
+        
+        
+    def gonder(self):
+        ogrenci_no = self.ogrenci_no
+        sicil_no = self.txtsicil_no.text()
+        mesaj = self.txtMesaj.toPlainText()
+        
+        self.setlblText()
+
+        try:
+            cursor = conn.cursor()
+            cursor.execute(
+                """
+                INSERT INTO mesaj_ogrenci (ogrenci_no, mesaj, sicil_no)
+                VALUES (%s, %s, %s) """,
+                (ogrenci_no, mesaj, sicil_no),
+            )
+            cursor.close()
+
+            self.lblMsgResult.setVisible(True)
+
+        except:
+            self.lblMsgResult.setText = "Hata"
+            self.lblMsgResult.setVisible(True)
+        
+
+class Ogrenci_Gelen_Mesaj(QWidget):
+    def __init__(self, ogrenci_no):
+        super().__init__()
+        self.ogrenci_no = ogrenci_no
+        
+        self.setStyleSheet("background-color: rgb(140, 0, 0);")
+        self.myFont = QFont("Arial", 8)
+        self.myFont.setBold(True)
+        self.setWindowTitle("Gelen Mesajlar")
+        self.move(900, 300)
+        self.setFixedSize(800, 600)
+        
+        
+        self.lblTitle = QLabel("Gelen mesajlar",self)
+        self.lblTitle.move(10, 10)
+        self.myFont.setPointSize(8)
+        self.lblTitle.setFont(self.myFont)
+        self.lblTitle.setStyleSheet("color : white")
+        self.lblTitle.setFixedSize(300,30)
+
+    
+        table = "mesaj_hoca"
+        cur = conn.cursor()
+        query = f"SELECT id, sicil_no, mesaj FROM {table} WHERE ogrenci_no = {self.ogrenci_no}"
+        cur.execute(query)
+
+        results = cur.fetchall()
+        cur.close()
+        
+        
+        self.table = QTableWidget(self)
+        self.table.move(50,50)
+        self.table.setFixedSize(500, 500)
+        self.table.setColumnCount(3)
+        self.table.setRowCount(len(results))
+        self.table.setHorizontalHeaderLabels(["Id", "Mesaj", "Gönderen hoca sicil no"])
+        self.table.setStyleSheet("color : black; background-color : white")
+        
+        for row_index, row_data in enumerate(results):
+            for col_index, col_data in enumerate(row_data):
+                    if col_index == 2:
+                        self.TextEdit = QTextEdit(self)
+                        self.TextEdit.setStyleSheet("color: black; background-color : white")
+                        self.TextEdit.setFixedSize(150, 70)
+                        self.TextEdit.setText(str(col_data))
+                        self.table.setCellWidget(row_index, col_index, self.TextEdit)
+                    else:
+                        self.table.setItem(row_index, col_index, QTableWidgetItem(str(col_data)))
+                    self.table.setRowHeight(row_index, 70)
+                    self.table.setColumnWidth(col_index, 150)
+
+
 
 
 # Hoca Paneli
@@ -1137,7 +1294,8 @@ class TeacherPanel(QWidget):
         super().__init__()
         self.initUI()
         self.table_visible = True
-
+        self.sicil_no = int()
+        
     def initUI(self):
         self.arr = []
 
@@ -1149,12 +1307,12 @@ class TeacherPanel(QWidget):
         self.move(600, 200)
         self.setFixedSize(1280, 720)
 
-        self.lblTitle = QLabel("Hoca Paneli", self)
+        self.lblTitle = QLabel(self)
         self.lblTitle.move(10, 10)
         self.myFont.setPointSize(12)
         self.lblTitle.setFont(self.myFont)
         self.lblTitle.setStyleSheet("color : white")
-
+        self.lblTitle.setFixedSize(300,30)
     
         self.myFont.setPointSize(10)
         self.btnAddİlgi_alani = QPushButton(self)
@@ -1168,19 +1326,64 @@ class TeacherPanel(QWidget):
         )
         
         
-    
+        self.myFont.setPointSize(9)
+        self.btnFilterOgr = QPushButton(self)
+        self.btnFilterOgr.setText("Öğrenci Listele")
+        self.btnFilterOgr.setFont(self.myFont)
+        self.btnFilterOgr.clicked.connect(self.list_student)
+        self.btnFilterOgr.setFixedSize(110, 40)
+        self.btnFilterOgr.move(470, 10)
+        self.btnFilterOgr.setStyleSheet(
+            "color : black; background-color : white; border-radius: 5px"
+        )
+        
+        
+        self.myFont.setPointSize(9)
+        self.btn_msj_gonder = QPushButton(self)
+        self.btn_msj_gonder.setText("Mesaj Gönder")
+        self.btn_msj_gonder.setFont(self.myFont)
+        self.btn_msj_gonder.clicked.connect(self.mesaj_gonder)
+        self.btn_msj_gonder.setFixedSize(110, 40)
+        self.btn_msj_gonder.move(590, 10)
+        self.btn_msj_gonder.setStyleSheet(
+            "color : black; background-color : white; border-radius: 5px"
+        )
+        
+        self.myFont.setPointSize(9)
+        self.btn_gelen_msg = QPushButton(self)
+        self.btn_gelen_msg.setText("Gelen Mesajlar")
+        self.btn_gelen_msg.setFont(self.myFont)
+        self.btn_gelen_msg.clicked.connect(self.gelen_mesajlar)
+        self.btn_gelen_msg.setFixedSize(110, 40)
+        self.btn_gelen_msg.move(710, 10)
+        self.btn_gelen_msg.setStyleSheet(
+            "color : black; background-color : white; border-radius: 5px"
+        )
     
     def setlblTitleText(self, text):
+        print(text)
         self.lblTitle.setText(text)
-
+        print(self.lblTitle.text())
 
 
     def ilgi_alani_ekle(self):
-        self.ilgiAlaniPanel = Hoca_ilgi_alani_ekleme()
+        self.ilgiAlaniPanel = Hoca_ilgi_alani_ekleme(self.sicil_no)
         self.ilgiAlaniPanel.show()
     
     
+    def list_student(self):
+        self.listPanel = ListStudent1()
+        self.listPanel2 = ListStudent2(self.sicil_no)
+        self.listPanel.show()
+        self.listPanel2.show()
     
+    def mesaj_gonder(self):
+        self.mesaj_gonder_panel = Hoca_Mesaj_Gonder(self.sicil_no)
+        self.mesaj_gonder_panel.show()
+    
+    def gelen_mesajlar(self):
+        self.gelen_mesaj_panel = Hoca_Gelen_Mesaj(self.sicil_no)
+        self.gelen_mesaj_panel.show()
     
     
 
@@ -1340,8 +1543,10 @@ class Ogrenci_Ders_Ekleme(QWidget):
 
 # Yönetici Paneli Öğrenciye Ders Ekleme
 class Hoca_ilgi_alani_ekleme(QWidget):
-    def __init__(self):
+    def __init__(self, sicil_no):
         super().__init__()
+        self.sicil_no = sicil_no
+        
         self.setStyleSheet("background-color: rgb(140, 0, 0);")
         self.myFont = QFont("Arial", 20)
         self.myFont.setBold(True)
@@ -1349,36 +1554,336 @@ class Hoca_ilgi_alani_ekleme(QWidget):
         self.move(700, 500)
         self.setFixedSize(400, 200)
         
-        """
-        self.txtOgrNo = QLineEdit(self)
-        self.txtOgrNo.move(10, 50)
-        self.txtOgrNo.resize(80, 40)
-        self.txtOgrNo.setPlaceholderText("öğrenci no")
-        self.txtOgrNo.setStyleSheet("color : black; background-color : white")
+        
+        table = "ilgialanlari"
+        cur = conn.cursor()
+        query = f"SELECT ilgi_alanı FROM {table}"
+        cur.execute(query)
 
-        self.txtDersKodu = QLineEdit(self)
-        self.txtDersKodu.move(100, 50)
-        self.txtDersKodu.resize(80, 40)
-        self.txtDersKodu.setPlaceholderText("ders kodu")
-        self.txtDersKodu.setStyleSheet("color : black; background-color : white")
-
-        self.txtHocaSicil = QLineEdit(self)
-        self.txtHocaSicil.move(190, 50)
-        self.txtHocaSicil.resize(80, 40)
-        self.txtHocaSicil.setPlaceholderText("sicil no")
-        self.txtHocaSicil.setStyleSheet("color : black; background-color : white")
+        results = cur.fetchall()
+        results = [result[0] for result in results]
+        cur.close()
+        
+        self.cbxIlgi_alanlari = QComboBox(self)
+        self.cbxIlgi_alanlari.move(50, 100)
+        self.cbxIlgi_alanlari.resize(170, 30)
+        self.cbxIlgi_alanlari.setStyleSheet("background-color : white")
+        
+        self.cbxIlgi_alanlari.addItems(results)
+        self.cbxIlgi_alanlari.setVisible(True)
+        
         
         self.myFont.setPointSize(7)
-        self.btnDersEkle = QPushButton(self)
-        self.btnDersEkle.setText("Dersi Ekle")
-        self.btnDersEkle.setFont(self.myFont)
-        self.btnDersEkle.setFixedSize(80, 40)
-        self.btnDersEkle.move(290, 50)
-        self.btnDersEkle.setStyleSheet(
+        self.btnIlgi_alani_ekle = QPushButton(self)
+        self.btnIlgi_alani_ekle.setText("İlgi Alanı Ekle")
+        self.btnIlgi_alani_ekle.setFont(self.myFont)
+        self.btnIlgi_alani_ekle.setFixedSize(100, 40)
+        self.btnIlgi_alani_ekle.move(250, 100)
+        self.btnIlgi_alani_ekle.setStyleSheet(
+            "color : black; background-color : white; border-radius: 5px")
+        self.btnIlgi_alani_ekle.clicked.connect(self.ilgi_alani_ekleme)
+        
+        
+    def ilgi_alani_ekleme(self):
+        ilgi_alani = self.cbxIlgi_alanlari.currentText()
+        sicil_no = self.sicil_no
+        table = "ilgialanı_hoca"
+        
+        cursor = conn.cursor()
+        cursor.execute(
+            f"""
+            INSERT INTO {table} (hoca_sicil_numarası, ilgi_alanı)
+            VALUES (%s, %s) """,
+            (sicil_no, ilgi_alani)
+        )
+        cursor.close()
+
+
+class ListStudent1(QWidget):
+    def __init__(self):
+        super().__init__()
+        
+        self.setStyleSheet("background-color: rgb(140, 0, 0);")
+        self.myFont = QFont("Arial", 8)
+        self.myFont.setBold(True)
+        self.setWindowTitle("Öğrenci Listeleme")
+        self.move(600, 300)
+        self.setFixedSize(800, 600)
+        
+        
+        self.lblTitle = QLabel("Talep oluşturmuş ve onaylanmamış",self)
+        self.lblTitle.move(10, 10)
+        self.myFont.setPointSize(8)
+        self.lblTitle.setFont(self.myFont)
+        self.lblTitle.setStyleSheet("color : white")
+        self.lblTitle.setFixedSize(300,30)
+        
+        table = "talep_ogrenci"
+        cur = conn.cursor()
+        query = f"SELECT ogrenci_no, ders_kodu FROM {table} WHERE hoca_sicil_no IS NULL"
+        cur.execute(query)
+
+        results = cur.fetchall()
+        cur.close()
+        
+        self.table = QTableWidget(self)
+        self.table.move(50,50)
+        self.table.setFixedSize(500, 500)
+        self.table.setColumnCount(2)
+        self.table.setRowCount(len(results))
+        self.table.setHorizontalHeaderLabels(["Öğrenci No", "Ders Kodu"])
+        self.table.setStyleSheet("color : black; background-color : white")
+        
+        for row_index, row_data in enumerate(results):
+            self.button = QPushButton(self)
+            self.button.setText(str(row_data[0]))
+            self.button.setFixedSize(125, 40)
+            self.button.setStyleSheet("color : black; background-color : white; border-radius: 5px")
+            self.button.clicked.connect(self.list_student)
+            for col_index, col_data in enumerate(row_data):
+                if col_index == 0:
+                    self.table.setCellWidget(row_index, col_index, self.button)
+                else:
+                    self.table.setItem(row_index, col_index, QTableWidgetItem(str(col_data)))
+
+
+    def list_student(self):
+        self.listPanel = ListStudent3()
+        self.listPanel.show()
+
+
+
+class ListStudent2(QWidget):
+    def __init__(self, sicil_no):
+        super().__init__()
+        self.sicil_no = sicil_no
+        self.setStyleSheet("background-color: rgb(140, 0, 0);")
+        self.myFont = QFont("Arial", 8)
+        self.myFont.setBold(True)
+        self.setWindowTitle("Öğrenci Listeleme")
+        self.move(900, 300)
+        self.setFixedSize(400, 200)
+        
+        
+        self.lblTitle = QLabel("Talep oluşturmuş ve tarafınızca onaylanmış",self)
+        self.lblTitle.move(10, 10)
+        self.myFont.setPointSize(8)
+        self.lblTitle.setFont(self.myFont)
+        self.lblTitle.setStyleSheet("color : white")
+        self.lblTitle.setFixedSize(300,30)
+
+        table = "talep_ogrenci"
+        cur = conn.cursor()
+        query = f"SELECT ogrenci_no, ders_kodu FROM {table} WHERE hoca_sicil_no = {self.sicil_no}"
+        cur.execute(query)
+
+        results = cur.fetchall()
+        cur.close()
+        
+        self.table = QTableWidget(self)
+        self.table.move(50,50)
+        self.table.setFixedSize(500, 500)
+        self.table.setColumnCount(2)
+        self.table.setRowCount(len(results))
+        self.table.setHorizontalHeaderLabels(["Öğrenci No", "Ders Kodu"])
+        self.table.setStyleSheet("color : black; background-color : white")
+        
+        for row_index, row_data in enumerate(results):
+            self.button = QPushButton(self)
+            self.button.setText(str(row_data[0]))
+            self.button.setFixedSize(125, 40)
+            self.button.setStyleSheet("color : black; background-color : white; border-radius: 5px")
+            self.ogr_no = row_data[0]
+            self.button.clicked.connect(self.list_student)
+            for col_index, col_data in enumerate(row_data):
+                if col_index == 0:
+                    self.table.setCellWidget(row_index, col_index, self.button)
+                else:
+                    self.table.setItem(row_index, col_index, QTableWidgetItem(str(col_data)))
+        
+        
+    def list_student(self):
+        self.listPanel = ListStudent3(self.ogr_no)
+        self.listPanel.show()
+        
+        
+        
+        
+class ListStudent3(QWidget):
+    def __init__(self, ogrenci_no):
+        super().__init__()
+        self.ogr_no = ogrenci_no
+        self.setStyleSheet("background-color: rgb(140, 0, 0);")
+        self.myFont = QFont("Arial", 8)
+        self.myFont.setBold(True)
+        self.setWindowTitle("Öğrenci Listeleme")
+        self.move(900, 300)
+        self.setFixedSize(400, 200)
+        
+        
+        self.lblTitle = QLabel(str(self.ogr_no) + " - aldığı dersler",self)
+        self.lblTitle.move(10, 10)
+        self.myFont.setPointSize(8)
+        self.lblTitle.setFont(self.myFont)
+        self.lblTitle.setStyleSheet("color : white")
+        self.lblTitle.setFixedSize(300,30)
+
+    
+        table = "talep_ogrenci"
+        cur = conn.cursor()
+        query = f"SELECT ders_kodu, hoca_sicil_no FROM {table} WHERE hoca_sicil_no IS NOT NULL"
+        cur.execute(query)
+
+        results = cur.fetchall()
+        cur.close()
+        
+        self.table = QTableWidget(self)
+        self.table.move(50,50)
+        self.table.setFixedSize(500, 500)
+        self.table.setColumnCount(2)
+        self.table.setRowCount(len(results))
+        self.table.setHorizontalHeaderLabels(["Öğrenci No", "Ders Kodu"])
+        self.table.setStyleSheet("color : black; background-color : white")
+        
+        for row_index, row_data in enumerate(results):
+            for col_index, col_data in enumerate(row_data):
+                    self.table.setItem(row_index, col_index, QTableWidgetItem(str(col_data)))
+
+
+class Hoca_Mesaj_Gonder(QWidget):
+    def __init__(self, sicil_no):
+        super().__init__()
+        self.sicil_no = sicil_no
+        
+        self.setStyleSheet("background-color: rgb(140, 0, 0);")
+        self.myFont = QFont("Arial", 8)
+        self.myFont.setBold(True)
+        self.setWindowTitle("Öğrenciye mesaj gönder")
+        self.move(900, 300)
+        self.setFixedSize(600, 400)
+        
+        
+        self.lblTitle = QLabel("Öğrenciye Mesaj Gönder",self)
+        self.lblTitle.move(10, 10)
+        self.myFont.setPointSize(8)
+        self.lblTitle.setFont(self.myFont)
+        self.lblTitle.setStyleSheet("color : white")
+        self.lblTitle.setFixedSize(300,30)
+
+        self.myFont.setPointSize(9)
+        self.txtMesaj = QTextEdit(self)
+        self.txtMesaj.move(10, 50)
+        self.txtMesaj.resize(580, 200)
+        self.txtMesaj.setPlaceholderText("Mesajınızı girin...")
+        self.txtMesaj.setStyleSheet("color : black; background-color : white")
+
+        self.txtogr_no = QLineEdit(self)
+        self.txtogr_no.move(250, 260)
+        self.txtogr_no.resize(100, 30)
+        self.txtogr_no.setPlaceholderText("öğrenci no")
+        self.txtogr_no.setStyleSheet("color : black; background-color : white")
+        
+        self.btnGonder = QPushButton(self)
+        self.btnGonder.setText("Mesajı Gönder")
+        self.btnGonder.setFont(self.myFont)
+        self.btnGonder.setFixedSize(120, 50)
+        self.btnGonder.move(230, 330)
+        self.btnGonder.setStyleSheet(
             "color : black; background-color : white; border-radius: 5px"
         )
-        self.btnDersEkle.clicked.connect(self.ogrenci_ders_ekleme)
-        """
+        self.btnGonder.clicked.connect(self.gonder)
+        
+        self.myFont.setPointSize(8)
+        self.lblMsgResult = QLabel("Mesaj Gönderildi", self)
+        self.lblMsgResult.move(230, 310)
+        self.lblMsgResult.setFont(self.myFont)
+        self.lblMsgResult.setStyleSheet("color : white")
+        self.lblMsgResult.setVisible(False)
+        
+    def setlblText(self):
+        self.txtMesaj.setText("")
+        self.txtogr_no.setText("")
+    def gonder(self):
+        
+        sicil_no = self.sicil_no
+        ogr_no = self.txtogr_no.text()
+        mesaj = self.txtMesaj.toPlainText()
+        
+        self.setlblText()
+
+        try:
+            cursor = conn.cursor()
+            cursor.execute(
+                """
+                INSERT INTO mesaj_hoca (sicil_no, ogrenci_no, mesaj)
+                VALUES (%s, %s, %s) """,
+                (sicil_no, ogr_no, mesaj),
+            )
+            cursor.close()
+
+            self.lblMsgResult.setVisible(True)
+
+        except:
+            self.lblMsgResult.setText = "Hata"
+            self.lblMsgResult.setVisible(True)
+
+    
+        
+        
+        
+
+class Hoca_Gelen_Mesaj(QWidget):
+    def __init__(self, sicil_no):
+        super().__init__()
+        self.sicil_no = sicil_no
+        
+        self.setStyleSheet("background-color: rgb(140, 0, 0);")
+        self.myFont = QFont("Arial", 8)
+        self.myFont.setBold(True)
+        self.setWindowTitle("Gelen Mesajlar")
+        self.move(900, 300)
+        self.setFixedSize(800, 600)
+        
+        
+        self.lblTitle = QLabel("Gelen mesajlar",self)
+        self.lblTitle.move(10, 10)
+        self.myFont.setPointSize(8)
+        self.lblTitle.setFont(self.myFont)
+        self.lblTitle.setStyleSheet("color : white")
+        self.lblTitle.setFixedSize(300,30)
+
+    
+        table = "mesaj_ogrenci"
+        cur = conn.cursor()
+        query = f"SELECT id, mesaj, ogrenci_no FROM {table} WHERE sicil_no = {self.sicil_no}"
+        cur.execute(query)
+
+        results = cur.fetchall()
+        cur.close()
+        
+        
+        self.table = QTableWidget(self)
+        self.table.move(50,50)
+        self.table.setFixedSize(500, 500)
+        self.table.setColumnCount(3)
+        self.table.setRowCount(len(results))
+        self.table.setHorizontalHeaderLabels(["Id", "Mesaj", "Gönderen öğrenci no"])
+        self.table.setStyleSheet("color : black; background-color : white")
+        
+        for row_index, row_data in enumerate(results):
+            for col_index, col_data in enumerate(row_data):
+                    if col_index == 2:
+                        self.TextEdit = QTextEdit(self)
+                        self.TextEdit.setStyleSheet("color: black; background-color : white")
+                        self.TextEdit.setFixedSize(150, 70)
+                        self.TextEdit.setText(str(col_data))
+                        self.table.setCellWidget(row_index, col_index, self.TextEdit)
+                    else:
+                        self.table.setItem(row_index, col_index, QTableWidgetItem(str(col_data)))
+                    self.table.setRowHeight(row_index, 70)
+                    self.table.setColumnWidth(col_index, 150)
+
+
 
 
 
@@ -1415,20 +1920,23 @@ def login_check(panel, table, txtUserName):
     password = panel.txtPassword.text()
 
     cur = conn.cursor()
-    query = f"SELECT * FROM {table} WHERE {txtUserName} = '{userName}' AND şifre = '{password}'"
+    query = f"SELECT isim, soy_isim FROM {table} WHERE {txtUserName} = '{userName}' AND şifre = '{password}'"
     cur.execute(query)
 
     results = cur.fetchall()
     cur.close()
 
-    return results
+    return userName, results
 
 
 def login_teacher():
-    results = login_check(loginTeacherPanel, "hoca", "sicil_numarası")
+    username, results = login_check(loginTeacherPanel, "hoca", "sicil_numarası")
+    teacher_panel.sicil_no = username
+    
     if results:
         teacher_name = "Hoca Paneli - " + results[0][0] + " " + results[0][1]
     if len(results):
+        teacher_panel.setVisible(True)
         t = threading.Thread(target=teacher_panel.setlblTitleText, args=(teacher_name,))
         t.start()
         t.join()
