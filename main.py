@@ -931,6 +931,7 @@ class StudentPanel(QWidget):
             "color : black; background-color : white; border-radius: 5px"
         )
         self.btn_sec.setVisible(False)
+        self.btn_sec.clicked.connect(self.talep_olustur)
 
         self.myFont.setPointSize(11)
         self.btn_filter = QPushButton(self)
@@ -1088,7 +1089,7 @@ class StudentPanel(QWidget):
             sicil_numbers = [result[0] for result in results]
             cur.close()
 
-            teachers = []
+            self.teachers = []
             for number in sicil_numbers:
                 table = "hoca"
                 column = "sicil_numarası"
@@ -1097,14 +1098,14 @@ class StudentPanel(QWidget):
                 query = f"SELECT isim, soy_isim FROM \"{table}\" WHERE {column} = '{number}'"
                 cur.execute(query)
                 results = cur.fetchall()
-                teacher = [result[0] + " " + result[1] for result in results]
+                teacher = [[result[0], result[1]] for result in results]
                 self.lessons_teacher[ders_adi] = teacher
 
         max_element_count = 0
 
-        for lesson, teachers in self.lessons_teacher.items():
-            if len(teachers) > max_element_count:
-                max_element_count = len(teachers)
+        for lesson, self.teachers in self.lessons_teacher.items():
+            if len(self.teachers) > max_element_count:
+                max_element_count = len(self.teachers)
 
         self.lessonTable.setStyleSheet("color : black; background-color : white")
         self.lessonTable.setRowCount(len(self.lessons_teacher))
@@ -1117,13 +1118,13 @@ class StudentPanel(QWidget):
         self.lessonTable.setHorizontalHeaderLabels(labels)
 
         row = 0
-        for lesson, teachers in self.lessons_teacher.items():
+        for lesson, self.teachers in self.lessons_teacher.items():
             lesson_item = QTableWidgetItem(lesson)
             self.lessonTable.setItem(row, 0, lesson_item)
 
-            for col, teacher in enumerate(teachers, 1):
+            for col, teacher in enumerate(self.teachers, 1):
                 teacher_combobox = QComboBox()
-                teacher_combobox.addItems(teachers)
+                teacher_combobox.addItems([teacher[0] + " " + teacher[1] for teacher in self.teachers])
                 self.lessonTable.setCellWidget(row, col, teacher_combobox)
 
             row += 1
@@ -1149,8 +1150,47 @@ class StudentPanel(QWidget):
         self.gelen_mesaj_panel = Ogrenci_Gelen_Mesaj(self.ogrenci_no)
         self.gelen_mesaj_panel.show()
 
+
+    def talep_olustur(self):
+        data = {}
+        for row in range(self.lessonTable.rowCount()):
+            
+            teachers = list(self.lessons_teacher.values())
+            teachers = [teacher[0] for teacher in teachers]
+            row_data = {}
+            string_item = self.lessonTable.item(row, 0)
+            combo_item = self.lessonTable.cellWidget(row, 1)
+
+            if string_item:
+                row_data["Ders Adı"] = string_item.text()
+
+            if combo_item:
+                row_data["Öğretmen"] = teachers[row]
+
+            data[f"Satır {row+1}"] = row_data
+            cursor = conn.cursor()
+            cursor.execute(
+                """
+                INSERT INTO talep_ogrenci (ogrenci_no, ders_isim, hoca_isim, hoca_soy_isim)
+                VALUES (%s, %s, %s, %s) """,
+                (self.ogrenci_no, row_data["Ders Adı"], teachers[row][0], teachers[row][1]),
+            )
+            cursor.close()
+            
+        print(data)
+        
+        
+        """
+        table = "talep_ogrenci"
+        ogrenci_no = self.ogrenci_no
+        ders_isim = 
+        hoca_isim =
+        hoca_soy_isim ="""
+
     def talep_listele(self):
         pass
+    
+    
     
     
 class Ogrenci_Mesaj_Gonder(QWidget):
