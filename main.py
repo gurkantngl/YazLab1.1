@@ -1065,7 +1065,10 @@ class StudentPanel(QWidget):
 
         self.transcript_panel = Transcript(lessons)
         self.transcript_panel.show()
-
+        
+        self.ders_secim_tablo()
+        
+    def ders_secim_tablo(self, filter_set=set()):
         lessons = dict()
         cursor = conn.cursor()
         query = 'SELECT ders_kodu, ders_adı FROM "açılanDersler"'
@@ -1088,6 +1091,19 @@ class StudentPanel(QWidget):
             results = cur.fetchall()
             sicil_numbers = [result[0] for result in results]
             cur.close()
+            
+            if len(filter_set) != 0:
+                for number in sicil_numbers:
+                    for ilgi_alanı in filter_set:
+                        table = "ilgialanı_hoca"
+                        cur = conn.cursor()
+                        query = f"SELECT id FROM \"{table}\" WHERE ilgi_alanı = '{ilgi_alanı}' AND hoca_sicil_numarası = '{number}'"
+                        cur.execute(query)
+                        results = cur.fetchall()
+                        cur.close()
+                        
+                        if len(results) == 0:
+                            del sicil_numbers[sicil_numbers.index(number)]
 
             self.teachers = []
             for number in sicil_numbers:
@@ -1099,6 +1115,7 @@ class StudentPanel(QWidget):
                 cur.execute(query)
                 results = cur.fetchall()
                 teacher = [[result[0], result[1]] for result in results]
+                
                 self.lessons_teacher[ders_adi] = teacher
 
         max_element_count = 0
@@ -1140,7 +1157,8 @@ class StudentPanel(QWidget):
         self.lblTitle.setText(text)
 
     def filter_teacher(self):
-        pass
+        self.filterTeacherPanel = Hoca_Filtreleme()
+        self.filterTeacherPanel.show()
 
     def send_message(self):
         self.mesaj_gonder_panel = Ogrenci_Mesaj_Gonder(self.ogrenci_no)
@@ -1869,9 +1887,6 @@ class Hoca_Mesaj_Gonder(QWidget):
 
     
         
-        
-        
-
 class Hoca_Gelen_Mesaj(QWidget):
     def __init__(self, sicil_no):
         super().__init__()
@@ -1924,9 +1939,64 @@ class Hoca_Gelen_Mesaj(QWidget):
                     self.table.setColumnWidth(col_index, 150)
 
 
+class Hoca_Filtreleme(QWidget):
+    def __init__(self):
+        super().__init__()
+        
+        self.setStyleSheet("background-color: rgb(140, 0, 0);")
+        self.myFont = QFont("Arial", 8)
+        self.myFont.setBold(True)
+        self.setWindowTitle("Hoca Filtreleme")
+        self.move(700, 300)
+        self.setFixedSize(400, 200)
+        
+        
+        self.lblTitle = QLabel("Hoca Filtreleme",self)
+        self.lblTitle.move(10, 10)
+        self.myFont.setPointSize(8)
+        self.lblTitle.setFont(self.myFont)
+        self.lblTitle.setStyleSheet("color : white")
+        self.lblTitle.setFixedSize(300,30)
+
+    
+        table = "ilgialanlari"
+        cur = conn.cursor()
+        query = f"SELECT ilgi_alanı FROM {table}"
+        cur.execute(query)
+
+        results = cur.fetchall()
+        cur.close()
+        results = [result[0] for result in results]
+        
+        
+        self.cbx_filter = QComboBox(self)
+        self.cbx_filter.move(20, 70)
+        self.cbx_filter.resize(170, 30)
+        self.cbx_filter.setStyleSheet("background-color : white")
+        self.cbx_filter.addItems(results)
+        self.cbx_filter.setVisible(True)
+
+        self.myFont.setPointSize(11)
+        self.btn_filter = QPushButton(self)
+        self.btn_filter.setText("Filtreye ekle")
+        self.btn_filter.setFont(self.myFont)
+        self.btn_filter.setFixedSize(150, 40)
+        self.btn_filter.move(210, 70)
+        self.btn_filter.setStyleSheet(
+            "color : black; background-color : white; border-radius: 5px"
+        )
+        self.btn_filter.clicked.connect(self.filter)
 
 
-
+    def filter(self):
+        filter_set = set()
+        filter_set.add(self.cbx_filter.currentText())
+        print(filter_set)
+        filter_teacher(filter_set)
+        
+        
+    
+    
 
 # Veritabanı bağlantısı
 conn = psycopg2.connect(
@@ -1946,6 +2016,7 @@ loginTeacherPanel = LoginPanel("Hoca", 600, "Sicil Numarası")
 loginAdminPanel = LoginPanel("Admin", 0, "Kullanıcı Adı")
 
 
+
 loginStudentPanel.show()
 loginTeacherPanel.show()
 loginAdminPanel.show()
@@ -1954,6 +2025,9 @@ loginAdminPanel.show()
 teacher_panel = TeacherPanel()
 admin_panel = AdminPanel()
 
+
+def filter_teacher(filter_set):
+    loginStudentPanel.student_panel.ders_secim_tablo(filter_set)
 
 def login_check(panel, table, txtUserName):
     userName = panel.txtUserName.text()
