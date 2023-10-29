@@ -30,7 +30,7 @@ from PyQt6.QtGui import QPixmap, QIcon, QPalette, QColor
 from PyQt6.QtGui import QPixmap, QFont, QColor, QIcon
 
 import sys
-from PyQt6.QtWidgets import QApplication, QWidget,QMainWindow, QLabel, QPushButton, QVBoxLayout,QTabWidget, QWidget, QVBoxLayout, QListWidget, QPushButton, QFileDialog,QHBoxLayout
+from PyQt6.QtWidgets import QApplication, QWidget,QMainWindow, QLabel, QPushButton, QVBoxLayout,QTabWidget, QWidget, QVBoxLayout, QListWidget, QPushButton, QFileDialog,QHBoxLayout ,QMessageBox
 
 class LoginPanel(QWidget):
     def __init__(self, text, x, txtUserName):
@@ -266,14 +266,281 @@ class AdminPanel(QWidget):
         self.btntalep_hoca.close()
         
 
-# Öğrenci Paneli
-class StudentPanel(QMainWindow):
+
+
+# Hoca Paneli
+class TeacherPanel(QWidget):
     def __init__(self):
         super().__init__()
         self.initUI()
         self.table_visible = True
+
+    def initUI(self):
+        self.arr = []
+
+        self.setStyleSheet("background-color: rgb(140, 0, 0);")
+
+        self.myFont = QFont("Arial", 20)
+        self.myFont.setBold(True)
+        self.setWindowTitle("Hoca Paneli")
+        self.move(600, 200)
+        self.setFixedSize(1280, 720)
+
+        self.lblTitle = QLabel("Hoca Paneli", self)
+        self.lblTitle.move(10, 10)
+        self.myFont.setPointSize(12)
+        self.lblTitle.setFont(self.myFont)
+        self.lblTitle.setStyleSheet("color : white")
+
+
+    def setlblTitleText(self, text):
+        self.lblTitle.setText(text)
+    
+    
+    
+    
+
+class Transcript(QWidget):
+    def __init__(self, lessons):
+        super().__init__()
+        self.lessons = lessons
+
+        self.myFont = QFont("Arial", 20)
+        self.myFont.setBold(True)
+        self.setWindowTitle("Transkript")
+        self.move(100, 100)
+        self.setFixedSize(825, 525)
+
+        self.tableWidget = QTableWidget(self)
+        self.tableWidget.setGeometry(10, 10, 800, 500)
+        self.tableWidget.setRowCount(len(self.lessons))
+        self.tableWidget.setColumnCount(len(lessons[0]))
+        self.tableWidget.setHorizontalHeaderLabels(
+            ["Ders Kodu", "Ders Adı", "Ders Durumu", "Öğretim Dili", "AKTS", "Not"]
+        )
+        self.tableWidget.setStyleSheet("color : black; background-color : white")
+
+        for row, lesson in enumerate(self.lessons):
+            for col, value in enumerate(lesson.values()):
+                item = QTableWidgetItem(str(value))
+                self.tableWidget.setItem(row, col, item)
         
         
+#akademisyen GİRİŞİ İÇİN *******************************************************************************************************
+
+    
+class AcademicianLoginWindow(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.show
+        self.setWindowTitle("Akademisyen Girişi")
+        self.setGeometry(100, 100, 1200, 600)
+        self.init_ui()
+
+    def init_ui(self):
+        frame = QWidget()
+        frame.setStyleSheet("background-color: rgb(10, 84, 50);") 
+        frame.setFixedSize(1200, 600)
+        self.setCentralWidget(frame)
+
+        self.sicil_no_label = QLabel("Sicil Numarası:", frame)
+        self.sicil_no_input = QLineEdit(frame)
+        self.password_label = QLabel("Şifre:", frame)
+        self.password_input = QLineEdit(frame)
+        self.password_input.setEchoMode(QLineEdit.EchoMode.Password)
+
+        self.login_btn = QPushButton("Giriş", frame)
+        self.login_btn.setIcon(QIcon("images/aca.png"))  # Akademisyen için özel bir ikon ekleyin.
+
+        self.login_btn.clicked.connect(self.login)
+
+        layout = QVBoxLayout()
+
+        background_image_path = "images/aca.png"
+        background_image = QPixmap(background_image_path)
+        background_label = QLabel(self)
+        background_label.setPixmap(background_image)
+
+        layout.addWidget(background_label)
+        layout.addWidget(self.sicil_no_label)
+        layout.addWidget(self.sicil_no_input)
+        layout.addWidget(self.password_label)
+        layout.addWidget(self.password_input)
+        layout.addWidget(self.login_btn)
+
+        frame.setLayout(layout)
+
+    def login(self):
+        sicil_no = self.sicil_no_input.text()
+        password = self.password_input.text()
+
+        if self.validate_academician_credentials(sicil_no, password):
+            print("Akademisyen girişi başarılı")
+            self.open_academician_panel()
+        else:
+            print("Başarısız akademisyen girişi")
+            self.show_error_message("Giriş başarısız!")
+
+    def validate_academician_credentials(self, sicil_no, password):
+        conn = psycopg2.connect(
+            database="postgres",
+            user="aslinurtopcu",
+            password="sifre",
+            host="localhost",
+            port="5432"
+        )
+        cursor = conn.cursor()
+
+        cursor.execute("SELECT sicil_no, sifre FROM akademisyen WHERE sicil_no = %s AND sifre = %s", (sicil_no, password))
+        result = cursor.fetchone()
+
+        conn.close()
+
+        return result is not None
+
+    def open_academician_panel(self):
+        self.hide()
+        self.academician_panel = TeacherPanel()
+        self.academician_panel.show()
+
+    def show_error_message(self, message):
+        error_message = QMessageBox()
+       # error_message.setIcon(QMessageBox.Critical)
+        error_message.setWindowTitle("HATALI GİRİŞ!")
+        error_message.setText(message)
+        error_message.exec()
+        pass
+
+
+    
+ #ÖĞRENCİ GİRİŞİ EKRANI#################################################   
+
+class StudentLoginWindow(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.show
+        self.setWindowTitle("Öğrenci Girişi")
+        self.setGeometry(100, 100, 1200, 600)
+        self.init_ui()
+
+    def init_ui(self):
+
+        frame = QWidget()
+        frame.setStyleSheet("background-color: rgb(10, 84, 50);")
+        frame.setFixedSize(1200, 600)
+
+        self.setCentralWidget(frame)
+
+        self.student_no_label = QLabel("Öğrenci Numarası:", frame)
+        self.student_no_label.setMaximumHeight(200)
+        self.student_no_label.setMaximumWidth(50)
+        self.student_no_input = QLineEdit(frame)
+        self.password_label = QLabel("Şifre:", frame)
+        self.password_input = QLineEdit(frame)
+        self.password_input.setEchoMode(QLineEdit.EchoMode.Password)
+
+        self.login_btn = QPushButton("Giriş", frame)
+        self.login_btn.setIcon(QIcon("/Users/aslinurtopcu/Desktop/StuIkon.png"))
+
+        self.login_btn.clicked.connect(self.login)
+
+        layout = QVBoxLayout()
+        
+        background_image_path = "/Users/aslinurtopcu/Desktop/wallpapers/kocaeliUni.jpeg"
+        background_image = QPixmap(background_image_path)
+        background_label = QLabel(self)
+        background_label.setPixmap(background_image)
+        
+        layout.addWidget(background_label)
+        
+        layout.addWidget(self.student_no_label)
+        layout.addWidget(self.student_no_input)
+        layout.addWidget(self.password_label)
+        layout.addWidget(self.password_input)
+        layout.addWidget(self.login_btn)
+        
+
+        frame.setLayout(layout)
+        
+
+    def login(self):
+        student_no = self.student_no_input.text()
+        password = self.password_input.text()
+
+        if self.validate_student_credentials(student_no, password):
+            print("Öğrenci girişi başarılı")
+            self.open_student_panel()
+        else:
+            print("Başarısız öğrenci girişi")
+            self.show_error_message("Giriş başarısız!")
+
+    def validate_student_credentials(self, student_no, password):
+        conn = psycopg2.connect(
+            database="postgres",
+            user="aslinurtopcu",
+            password="sifre",
+            host="localhost",
+            port="5432"
+        )
+        cursor = conn.cursor()
+
+        cursor.execute("SELECT ogrenci_no, sifre FROM ogrenci WHERE ogrenci_no = %s AND sifre = %s", (student_no, password))
+        result = cursor.fetchone()
+
+        conn.close()
+
+        return result is not None
+
+    def open_student_panel(self):
+        self.hide()
+        student_no = self.student_no_input.text()
+        self.student_panel = StudentPanel(student_no)  # Pass the student_no here
+        self.student_panel.show()
+
+    def show_error_message(self, message):
+        error_message = QMessageBox()
+       # error_message.setIcon(QMessageBox.Critical)
+        error_message.setWindowTitle("HATALI GİRİŞ!")
+        error_message.setText(message)
+        error_message.exec()
+        pass
+
+
+
+
+# Öğrenci Paneli################################################
+class StudentPanel(QMainWindow):
+    def __init__(self, student_no):
+        super().__init__()
+        self.student_no = student_no  # Store the student_no as an instance variable
+        self.initUI()
+        self.table_visible = True
+        
+    def populate_academicians_combo(self):
+            try:
+                conn = psycopg2.connect(
+                    database="postgres",
+                    user="aslinurtopcu",
+                    password="çilek",
+                    host="localhost",
+                    port="5432"
+                )
+
+                cursor = conn.cursor()
+
+                # Assuming that the column containing academician names is named 'ad' and 'soyad'
+                cursor.execute("SELECT ad, soyad FROM akademisyen")
+
+                academician_names = cursor.fetchall()
+                academician_full_names = [f"{name} {surname}" for name, surname in academician_names]
+
+                self.academician_combo.addItems(academician_full_names)
+
+            except (Exception, psycopg2.DatabaseError) as error:
+                print("Error fetching academician names:", error)
+            finally:
+                if conn is not None:
+                    conn.close() 
 
     def initUI(self):
         self.arr = []
@@ -295,8 +562,8 @@ class StudentPanel(QMainWindow):
         self.courses_layout.addWidget(self.btn_load_pdf)
         self.courses_layout.addWidget(self.course_list)
         self.central_widget.addTab(self.courses_tab, "Aldığım Dersler")
-
         self.btn_load_pdf.clicked.connect(self.load_pdf)
+       
        
         self.professors_tab = QWidget()
         self.professors_layout = QVBoxLayout(self.professors_tab)
@@ -339,6 +606,9 @@ class StudentPanel(QMainWindow):
         self.request_layout.addWidget(self.delete_req_btn)
 
         # MESAJLAŞMA SEKMESİ
+        
+      
+
         self.message_tab = QWidget()
         self.message_layout = QVBoxLayout()
         self.message_list = QListWidget()
@@ -350,16 +620,18 @@ class StudentPanel(QMainWindow):
         self.send_message_btn = QPushButton("Mesaj Yolla")
         self.message_input = QLineEdit()  # Metin girişi için QLineEdit
 
-        # Akademisyen seçimi için bir açılır menü ekleyin
-        self.academician_combo = QComboBox()
-        academician_list = ["Akademisyen 1", "Akademisyen 2", "Akademisyen 3"]  # Akademisyenlerin listesi
-        self.academician_combo.addItems(academician_list)
+        
 
+        #self.academician_combo = QComboBox()
+       #academician_list = ["Akademisyen 1", "Akademisyen 2", "Akademisyen 3"]  # Akademisyenlerin listesi
+        #self.academician_combo.addItems(academician_list)
+        self.academician_combo = QComboBox()
         button_layout = QHBoxLayout()
         button_layout.addWidget(self.message_btn)
         button_layout.addWidget(self.academician_combo)  # Akademisyen seçimini ekleyin
         button_layout.addWidget(self.send_message_btn)
-
+        
+        self.populate_academicians_combo()
         self.message_tab.setLayout(self.message_layout)
         self.message_layout.addWidget(self.message_input)
         self.message_layout.addLayout(button_layout)
@@ -367,12 +639,13 @@ class StudentPanel(QMainWindow):
         self.central_widget.addTab(self.message_tab, "Mesaj Gönder")
 
         def send_message():
+            student_no = self.student_no
             message_text = self.message_input.text()
             selected_academician = self.academician_combo.currentText()  # Seçilen akademisyeni alın
             if message_text:
             # İşte burada bu mesajı veritabanına veya başka bir yere kaydetmek isterseniz student_panel.mesaj_gonder işlevini çağırabilirsiniz.
             # Öğrenci numarası ve seçilen akademisyeni kullanarak mesaj gönderme işlemi yapabilirsiniz.
-                student_panel.mesaj_gonder(ogrenci_no, selected_academician, message_text)
+                student_panel.mesaj_gonder(student_no, selected_academician, message_text)
 
                 self.message_list.addItem(f"Gönderilen ({selected_academician}): {message_text}")  # Gönderilen mesajları görüntüle
                 self.message_input.clear()
@@ -383,8 +656,9 @@ class StudentPanel(QMainWindow):
         button_layout.addWidget(self.show_message_btn)
 
         def show_messages():
+            student_no = self.student_no
             # İşte burada gelen mesajları görüntülemek isterseniz student_panel.mesajlari_getir işlevini çağırabilirsiniz.
-            messages = student_panel.mesajlari_getir(ogrenci_no)
+            messages = student_panel.mesajlari_getir(student_no)
             for message in messages:
                 self.message_list.addItem("Gelen: " + message)
 
@@ -556,144 +830,6 @@ class StudentPanel(QMainWindow):
         
 
 
-# Hoca Paneli
-class TeacherPanel(QWidget):
-    def __init__(self):
-        super().__init__()
-        self.initUI()
-        self.table_visible = True
-
-    def initUI(self):
-        self.arr = []
-
-        self.setStyleSheet("background-color: rgb(140, 0, 0);")
-
-        self.myFont = QFont("Arial", 20)
-        self.myFont.setBold(True)
-        self.setWindowTitle("Hoca Paneli")
-        self.move(600, 200)
-        self.setFixedSize(1280, 720)
-
-        self.lblTitle = QLabel("Hoca Paneli", self)
-        self.lblTitle.move(10, 10)
-        self.myFont.setPointSize(12)
-        self.lblTitle.setFont(self.myFont)
-        self.lblTitle.setStyleSheet("color : white")
-
-
-    def setlblTitleText(self, text):
-        self.lblTitle.setText(text)
-    
-    
-    
-    
-
-class Transcript(QWidget):
-    def __init__(self, lessons):
-        super().__init__()
-        self.lessons = lessons
-
-        self.myFont = QFont("Arial", 20)
-        self.myFont.setBold(True)
-        self.setWindowTitle("Transkript")
-        self.move(100, 100)
-        self.setFixedSize(825, 525)
-
-        self.tableWidget = QTableWidget(self)
-        self.tableWidget.setGeometry(10, 10, 800, 500)
-        self.tableWidget.setRowCount(len(self.lessons))
-        self.tableWidget.setColumnCount(len(lessons[0]))
-        self.tableWidget.setHorizontalHeaderLabels(
-            ["Ders Kodu", "Ders Adı", "Ders Durumu", "Öğretim Dili", "AKTS", "Not"]
-        )
-        self.tableWidget.setStyleSheet("color : black; background-color : white")
-
-        for row, lesson in enumerate(self.lessons):
-            for col, value in enumerate(lesson.values()):
-                item = QTableWidgetItem(str(value))
-                self.tableWidget.setItem(row, col, item)
-        
-        
-#ÖĞRENCİ GİRİŞİ İÇİN *******************************************************************************************************
-
-class StudentLoginWindow(QMainWindow):
-    def __init__(self):
-        super().__init__()
-        self.show
-        self.setWindowTitle("Öğrenci Girişi")
-        self.setGeometry(100, 100, 1200, 600)
-        self.init_ui()
-
-    def init_ui(self):
-        background_image = QPixmap("/Users/aslinurtopcu/Desktop/wallpapers/simon.jpg")
-        background_label = QLabel(self)
-        background_label.setPixmap(background_image)
-        background_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.setCentralWidget(background_label)
-
-        frame = QWidget()
-        frame.setStyleSheet("background-color: rgba(255, 255, 255, 150);")
-        frame.setFixedSize(400, 300)
-
-        self.setCentralWidget(frame)
-
-        self.student_no_label = QLabel("Öğrenci Numarası:", frame)
-        self.student_no_input = QLineEdit(frame)
-        self.password_label = QLabel("Şifre:", frame)
-        self.password_input = QLineEdit(frame)
-        self.password_input.setEchoMode(QLineEdit.EchoMode.Password)
-
-        self.login_btn = QPushButton("Giriş", frame)
-        self.login_btn.setIcon(QIcon("/Users/aslinurtopcu/Desktop/StuIkon.png"))
-
-        self.login_btn.clicked.connect(self.login)
-
-        layout = QVBoxLayout()
-        layout.addWidget(self.student_no_label)
-        layout.addWidget(self.student_no_input)
-        layout.addWidget(self.password_label)
-        layout.addWidget(self.password_input)
-        layout.addWidget(self.login_btn)
-
-        frame.setLayout(layout)
-
-    def login(self):
-        student_no = self.student_no_input.text()
-        password = self.password_input.text()
-
-        if self.validate_student_credentials(student_no, password):
-            print("Öğrenci girişi başarılı")
-            self.open_student_panel()
-        else:
-            print("Başarısız öğrenci girişi")
-            self.show_error_message("Giriş başarısız!")
-
-    def validate_student_credentials(self, student_no, password):
-        conn = psycopg2.connect(
-            database="postgres",
-            user="aslinurtopcu",
-            password="sifre",
-            host="localhost",
-            port="5432"
-        )
-        cursor = conn.cursor()
-
-        cursor.execute("SELECT ogrenci_no, sifre FROM ogrenci WHERE ogrenci_no = %s AND sifre = %s", (student_no, password))
-        result = cursor.fetchone()
-
-        conn.close()
-
-        return result is not None
-
-    def open_student_panel(self):
-        self.hide()
-        self.student_panel = StudentPanel()
-        self.student_panel.show()
-
-    def show_error_message(self, message):
-        pass
-
-
 
 # Veritabanı bağlantısı***************************************
 conn = psycopg2.connect(
@@ -708,8 +844,90 @@ conn.autocommit = True
 
 cursor = conn.cursor()
 
+#ADMİN GİRİŞ EKRANI *************************************
 
-        
+class AdminLoginWindow(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Yönetici Girişi")
+        self.setGeometry(100, 100, 1200, 600)
+        self.init_ui()
+
+    def init_ui(self):
+        frame = QWidget()
+        frame.setStyleSheet("background-color: rgb(10, 84, 50);")  
+        frame.setFixedSize(1200, 600)
+        self.setCentralWidget(frame)
+
+        self.username_label = QLabel("Kullanıcı Adı:", frame)
+        self.username_input = QLineEdit(frame)
+        self.password_label = QLabel("Şifre:", frame)
+        self.password_input = QLineEdit(frame)
+        self.password_input.setEchoMode(QLineEdit.EchoMode.Password)
+
+        self.login_btn = QPushButton("Giriş", frame)
+        self.login_btn.setIcon(QIcon("images/admin.png"))
+
+        self.login_btn.clicked.connect(self.login)
+
+        layout = QVBoxLayout()
+
+        background_image_path = "images/admin.png"
+        background_image = QPixmap(background_image_path)
+        background_label = QLabel(self)
+        background_label.setPixmap(background_image)
+
+        layout.addWidget(background_label)
+        layout.addWidget(self.username_label)
+        layout.addWidget(self.username_input)
+        layout.addWidget(self.password_label)
+        layout.addWidget(self.password_input)
+        layout.addWidget(self.login_btn)
+
+        frame.setLayout(layout)
+
+    def login(self):
+        username = self.username_input.text()
+        password = self.password_input.text()
+
+        if self.validate_admin_credentials(username, password):
+            print("Yönetici girişi başarılı")
+            self.open_admin_panel()
+        else:
+            print("Başarısız yönetici girişi")
+            self.show_error_message("Giriş başarısız!")
+
+    def validate_admin_credentials(self, username, password):
+        conn = psycopg2.connect(
+            database="postgres",
+            user="admin_user",
+            password="admin_password",
+            host="localhost",
+            port="5432"
+        )
+        cursor = conn.cursor()
+
+        cursor.execute("SELECT username, password FROM admin WHERE username = %s AND password = %s", (username, password))
+        result = cursor.fetchone()
+
+        conn.close()
+
+        return result is not None
+
+    def open_admin_panel(self):
+        self.hide()
+        self.admin_panel = AdminPanel()
+        self.admin_panel.show()
+
+    def show_error_message(self, message):
+        error_message = QMessageBox()
+       # error_message.setIcon(QMessageBox.Critical)
+        error_message.setWindowTitle("HATALI GİRİŞ!")
+        error_message.setText(message)
+        error_message.exec()
+        pass
+
+
 #UYGULAMA GİRİŞ EKRANI****************************** 
 
 class LoginScreen(QWidget):
@@ -738,7 +956,7 @@ class LoginScreen(QWidget):
         self.btnStudent.clicked.connect(self.openStudentPanel)
         layout.addWidget(self.btnStudent)
 
-        self.btnTeacher = QPushButton("Hoca Girişi", self)
+        self.btnTeacher = QPushButton("Akademisyen Girişi", self)
         self.btnTeacher.setStyleSheet("font-size: 20px;")
         self.btnTeacher.clicked.connect(self.openTeacherPanel)
         layout.addWidget(self.btnTeacher)
@@ -750,19 +968,18 @@ class LoginScreen(QWidget):
 
     def openStudentPanel(self):
         print("Öğrenci Paneline Yönlendiriliyor")
-        self.student_login_window = StudentLoginWindow()  # Öğrenci girişi ekranı penceresini oluştur
-        self.student_login_window.show()  # Pencereyi görüntüle
-        
+        self.student_login_window = StudentLoginWindow()  
+        self.student_login_window.show()
 
     def openTeacherPanel(self):
-        print("Hoca Paneline Yönlendiriliyor")
-        self.teacher_panel = TeacherPanel()
-        self.teacher_panel.show()
+        print("Akademisyen Paneline Yönlendiriliyor")
+        self.Academician_Login_Window = AcademicianLoginWindow()
+        self.Academician_Login_Window.show()
 
     def openAdminPanel(self):
         print("Yönetici Paneline Yönlendiriliyor")
-        self.admin_panel = AdminPanel()
-        self.admin_panel.show()
+        self.Admin_Login_Window = AdminLoginWindow()
+        self.Admin_Login_Window.show()
 
 if __name__ == "__main__":
     app = QApplication([])
