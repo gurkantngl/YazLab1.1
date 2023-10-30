@@ -638,17 +638,86 @@ class StudentPanel(QMainWindow):
         self.message_layout.addWidget(self.message_list)
         self.central_widget.addTab(self.message_tab, "Mesaj Gönder")
 
+        cursor = conn.cursor()
+
+        #akademisyen adı soy adına göre id eşleştirmesi
+        
+        def get_academician_id_by_name(first_name, last_name):
+            try:
+                conn = psycopg2.connect(
+                    database="postgres",
+                    user="aslinurtopcu",
+                    password="çilek",
+                    host="localhost",
+                    port="5432"
+                )
+                cursor = conn.cursor()
+        
+                sql = "SELECT sicil_no FROM akademisyen WHERE ad = %s AND soyad = %s"
+                cursor.execute(sql, (first_name, last_name))
+                academician_id = cursor.fetchone()
+        
+                if academician_id:
+                    return academician_id[0]
+                else:
+                    return None
+
+            except psycopg2.Error as e:
+                print("Error:", e)
+            finally:
+                cursor.close()
+                conn.close()
+
+        
+        def mesaj_gonder(gonderen_id, alici_id, icerik):
+            
+            # Mesaj gönderme işlemi
+            sql = "INSERT INTO ogrenci_mesajlar (gonderen_id, alici_id, icerik) VALUES (%s, %s, %s)"
+            degerler = (gonderen_id, alici_id, icerik)
+            
+           
+
+            try:
+                cursor.execute(sql, degerler)
+                conn.commit()
+                print("Mesaj gönderildi")
+            except psycopg2.Error as e:
+                print("Hata oluştu:", e)
+
+        
+
+
+        def mesajlari_getir(kullanici_id):
+            # Kullanıcının aldığı veya gönderdiği mesajları getirme işlemi
+            sql = "SELECT mesaj_id, gonderen_id, alici_id, icerik, tarih FROM ogrenci_mesajlar WHERE gonderen_id = %s OR alici_id = %s"
+            degerler = (kullanici_id, kullanici_id)
+            cursor.execute(sql, degerler)
+            mesajlar = cursor.fetchall()
+    
+            if mesajlar:
+                for mesaj in mesajlar:
+                    mesaj_id, gonderen_id, alici_id, icerik, tarih = mesaj
+                    print(f"Mesaj ID: {mesaj_id}, Gönderen: {gonderen_id}, Alıcı: {alici_id}, İçerik: {icerik}, Tarih: {tarih}")
+            else:
+                print("Mesajlar bulunamadı")
+                
         def send_message():
             student_no = self.student_no
             message_text = self.message_input.text()
-            selected_academician = self.academician_combo.currentText()  # Seçilen akademisyeni alın
-            if message_text:
-            # İşte burada bu mesajı veritabanına veya başka bir yere kaydetmek isterseniz student_panel.mesaj_gonder işlevini çağırabilirsiniz.
-            # Öğrenci numarası ve seçilen akademisyeni kullanarak mesaj gönderme işlemi yapabilirsiniz.
-                student_panel.mesaj_gonder(student_no, selected_academician, message_text)
-
-                self.message_list.addItem(f"Gönderilen ({selected_academician}): {message_text}")  # Gönderilen mesajları görüntüle
+            selected_academician = self.academician_combo.currentText()
+    
+            # Split the selected academician's name into first name and last name
+            first_name, last_name = selected_academician.split()
+    
+            # Fetch the academician's ID based on both first name and last name
+            academician_id = get_academician_id_by_name(first_name, last_name)
+    
+            if academician_id is not None:
+                mesaj_gonder(student_no, academician_id, message_text)
+                self.message_list.addItem(f"Gönderilen ({selected_academician}): {message_text}")
                 self.message_input.clear()
+            else:
+                print("Akademisyen bulunamadı")
 
         self.message_btn.clicked.connect(send_message)
 
@@ -657,8 +726,8 @@ class StudentPanel(QMainWindow):
 
         def show_messages():
             student_no = self.student_no
-            # İşte burada gelen mesajları görüntülemek isterseniz student_panel.mesajlari_getir işlevini çağırabilirsiniz.
-            messages = student_panel.mesajlari_getir(student_no)
+            
+            messages = mesajlari_getir(student_no)
             for message in messages:
                 self.message_list.addItem("Gelen: " + message)
 
@@ -689,6 +758,7 @@ class StudentPanel(QMainWindow):
             )"""
         self.btn_sec.setVisible(False)
         
+    
         
         # Ders Seçim Tablosu
         self.lessonTable = QTableWidget(self)
@@ -751,6 +821,7 @@ class StudentPanel(QMainWindow):
         ders_kodlari = re.findall(r"^[A-Z]{3}\d{3}$", text, re.MULTILINE)
 
         lessons = []
+        
 
         # textte ders kodunu bulduğu ders ile ilgili bilgileri ayıklar
         for kod in ders_kodlari:
@@ -788,11 +859,55 @@ class StudentPanel(QMainWindow):
         }
 
         max_element_count = 0
-        
+        # Ders kodunun veritabanında olup olmadığını kontrol eden işlev 
+        def ders_kodu_var_mi(self, ders_kodu):
+            try:
+                conn = psycopg2.connect(
+                    database="postgres",
+                    user="aslinurtopcu",
+                    password="çilek",
+                    host="localhost",
+                    port="5432"
+                )
+                cursor = conn.cursor()
+
+                # Ders kodunun açılanDersler tablosunda olup olmadığını kontrol etmek için sorgu
+                cursor.execute("SELECT COUNT(*) FROM açılanDersler WHERE ders_kodu = %s", (ders_kodu,))
+                result = cursor.fetchone()
+
+                if result and result[0] > 0:
+                    return True
+                else:
+                    return False
+
+            except (Exception, psycopg2.DatabaseError) as error:
+                print("Veritabanı hatası:", error)
+            finally:
+                if conn is not None:
+                    conn.close()    
         for lesson, teachers in self.lessons_teacher.items():
             if len(teachers) > max_element_count:
                 max_element_count = len(teachers)
         
+        cursor = conn.cursor()
+
+        for lesson in lessons:
+            ders_kodu = lesson["ders_kodu"]
+            ders_adi = lesson["ders_adi"]
+            ders_statusu = lesson["ders_statusu"]
+            ogretim_dili = lesson["ogretim_dili"]
+            AKTS = lesson["AKTS"]
+            notu = lesson["not"]
+            
+            if not ders_kodu_var_mi(self,ders_kodu):
+            # SQL INSERT sorgusu
+                insert_query = "INSERT INTO açılanDersler (ders_kodu, ders_adi, ders_durumu, ogretim_dili, talep_edilebilecek_hoca_sayisi, ders_notu) VALUES (%s, %s, %s, %s, %s, %s)"
+                values = (ders_kodu, ders_adi, ders_statusu, ogretim_dili, 0, notu)
+                cursor.execute(insert_query, values)
+            else: 
+                print(f"{ders_kodu} zaten veritabanında mevcut.")
+        conn.commit()
+        cursor.close()
         
         self.lessonTable.setStyleSheet("color : black; background-color : white")
         self.lessonTable.setRowCount(len(self.lessons_teacher))
@@ -816,7 +931,7 @@ class StudentPanel(QMainWindow):
 
             row += 1
 
-
+    
         self.lessonTable.setVisible(True)
         
         

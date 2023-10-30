@@ -79,7 +79,7 @@ window.show()
 sys.exit(app.exec())
 
 """
-"""import psycopg2
+import psycopg2
 
 # Veritabanı bağlantısı oluştur
 # Veritabanı bağlantısı***************************************
@@ -92,8 +92,6 @@ conn = psycopg2.connect(
     port="5432",
 )
 conn.autocommit = True
-
-cursor = conn.cursor()"""
 """
 def create_req(ogrenci_no, ders_kodu, hoca_sayisi=1):
     # Öğrencinin talep ettiği dersi ve hoca sayısını kaydet
@@ -120,7 +118,7 @@ create_req(1, 101, 2)  # Öğrenci 1, ders kodu 101 için 2 hoca talebinde bulun
 delete_req(1, 101)  # Öğrenci 1, ders kodu 101 için talebini geri çekiyor.
 """
 
-"""# Veritabanı bağlantısını oluştur
+# Veritabanı bağlantısını oluştur
 
 cursor = conn.cursor()
 
@@ -154,100 +152,4 @@ def mesajlari_getir(kullanici_id):
 #mesajlari_getir(210202103)  # Kullanıcı 1'in gönderdiği ve aldığı mesajları getirir.
 
 # Bağlantıyı kapatmayı unutmayın
-conn.close()"""
-
-import psycopg2
-import fitz
-import re
-import sys
-from PyQt6 import QtCore
-from PyQt6.QtCore import QTimer
-from PyQt6.QtWidgets import QApplication, QWidget
-from PyQt6.QtWidgets import (
-    QApplication,
-    QWidget,
-    QLabel,
-    QWidget,
-    QLineEdit,
-    QPushButton,
-    QFileDialog,
-    QTableWidget,
-    QTableWidgetItem,
-    QComboBox
-)
-from PyQt6.QtGui import QFont
-import threading
-
-import student_panel
-# Giriş Paneli
-
-from PyQt6.QtGui import QPixmap, QFont, QColor, QIcon
-
-import sys
-from PyQt6.QtWidgets import QApplication, QWidget,QMainWindow, QLabel, QPushButton, QVBoxLayout,QTabWidget, QWidget, QVBoxLayout, QListWidget, QPushButton, QFileDialog,QHBoxLayout
-
-class LoginPanel(QWidget):
-    def __init__(self, text, x, txtUserName):
-        self.textUser = txtUserName
-        self.text = text + " Giriş Paneli"
-        self.x = x
-        super().__init__()
-        self.initUI()
-
-    def initUI(self):
-        
-        self.setStyleSheet("background-color: rgb(140, 0, 0);")
-        self.myFont = QFont("Arial", 20)
-        self.myFont.setBold(True)
-        self.setWindowTitle(self.text)
-        self.move(self.x, 200)
-        self.setFixedSize(700, 500)
-
-        self.lblTitle = QLabel(self.text, self)
-        self.lblTitle.move(220, 80)
-        self.lblTitle.setFont(self.myFont)
-        self.lblTitle.setStyleSheet("color : white")
-
-        self.lblUserName = QLabel(self.textUser + ": ", self)
-        self.lblUserName.move(150, 180)
-        self.myFont.setPointSize(10)
-        self.lblUserName.setFont(self.myFont)
-        self.lblUserName.setStyleSheet("color : white")
-
-        self.txtUserName = QLineEdit(self)
-        self.txtUserName.move(300, 180)
-        self.txtUserName.resize(200, 30)
-        self.txtUserName.setPlaceholderText(self.textUser + " girin...")
-        self.txtUserName.setStyleSheet("color : black; background-color : white")
-
-        self.lblPassword = QLabel("Şifre:", self)
-        self.lblPassword.move(240, 280)
-        self.myFont.setPointSize(12)
-        self.lblPassword.setFont(self.myFont)
-        self.lblPassword.setStyleSheet("color : white")
-
-        self.txtPassword = QLineEdit(self)
-        self.txtPassword.move(300, 280)
-        self.txtPassword.resize(200, 30)
-        self.txtPassword.setPlaceholderText("Şifre girin...")
-        self.txtPassword.setStyleSheet("color : black; background-color : white")
-
-        self.myFont.setPointSize(11)
-        self.btnLogIn = QPushButton(self)
-        self.btnLogIn.setText("Sisteme giriş yap")
-        self.btnLogIn.setFont(self.myFont)
-        self.btnLogIn.setFixedSize(180, 50)
-        self.btnLogIn.move(275, 350)
-        self.btnLogIn.setStyleSheet(
-            "color : black; background-color : white; border-radius: 5px"
-        )
-
-        
-        self.lblIncorrect = QLabel("Hatalı Giriş!", self)
-        self.lblIncorrect.move(310, 410)
-        self.lblIncorrect.setFont(self.myFont)
-        self.lblIncorrect.setStyleSheet("color : white")
-        self.lblIncorrect.setVisible(False)
-        
-    def setlblTitleText(self, text):
-            self.lblTitle.setText(text)    
+conn.close()
