@@ -27,6 +27,7 @@ import threading
 from regex import P
 import random
 
+
 # Giriş Paneli
 class LoginPanel(QWidget):
     def __init__(self, text, x, txtUserName):
@@ -291,7 +292,6 @@ class AdminPanel(QWidget):
             "color : black; background-color : white; border-radius: 5px"
         )
         self.arr.append(self.btnTime)
-
 
         self.myFont.setPointSize(11)
         self.btnStart = QPushButton(self)
@@ -833,8 +833,6 @@ class AdminPanel(QWidget):
         cur.execute(query, (talep_onay,))
         cur.close()
 
-
-
         self.talep_hoca_tablosu.setVisible(False)
         self.btntalep_hoca.setVisible(False)
         self.lblChar.setVisible(False)
@@ -843,7 +841,6 @@ class AdminPanel(QWidget):
         self.lblConfirmNum.setVisible(False)
         self.txtConfirmNum.setText = ""
         self.txtConfirmNum.setVisible(False)
-        
 
     def start(self):
         char = self.txtChar.text()
@@ -876,7 +873,6 @@ class AdminPanel(QWidget):
         except:
             pass
 
-    
     def asama2(self):
         self.lblChar.close()
         self.txtChar.close()
@@ -924,7 +920,7 @@ class AdminPanel(QWidget):
         self.lblRemoveIlgi_alani.close()
         self.lblResultRemoveIlgi_alani.close()
         self.lblConfirmNum.close()
-        
+
         self.myFont.setPointSize(10)
         self.btn1 = QPushButton(self)
         self.btn1.clicked.connect(self.rastgele_atama)
@@ -936,9 +932,7 @@ class AdminPanel(QWidget):
             "color : black; background-color : white; border-radius: 5px"
         )
         self.btn1.setVisible(True)
-        
-        
-        
+
         self.myFont.setPointSize(10)
         self.btn2 = QPushButton(self)
         self.btn2.clicked.connect(self.not_ortalamasina_gore_atama)
@@ -950,9 +944,7 @@ class AdminPanel(QWidget):
             "color : black; background-color : white; border-radius: 5px"
         )
         self.btn2.setVisible(True)
-        
-        
-        
+
         self.myFont.setPointSize(10)
         self.btn3 = QPushButton(self)
         self.btn3.clicked.connect(self.belirli_derslere_gore_atama)
@@ -964,13 +956,11 @@ class AdminPanel(QWidget):
             "color : black; background-color : white; border-radius: 5px"
         )
         self.btn3.setVisible(True)
-    
-        
+
     def rastgele_atama(self):
         # Aşama 1 ######################################################################################################
-            # Öğrenci listesini almak için bir işlev
+        # Öğrenci listesini almak için bir işlev
         def get_student_list_from_database():
-
             cursor = conn.cursor()
             cursor.execute(
                 "SELECT ogrenci_no, isim, soy_isim FROM ogrenci WHERE anlaşma_talep_sayısı = '0'"
@@ -984,11 +974,8 @@ class AdminPanel(QWidget):
 
         # Öğretmen listesini almak için bir işlev
         def get_teacher_list_from_database():
-
             cursor = conn.cursor()
-            cursor.execute(
-                "SELECT sicil_numarası, isim, soy_isim FROM hoca"
-            )
+            cursor.execute("SELECT sicil_numarası, isim, soy_isim FROM hoca")
 
             teacher_list = cursor.fetchall()
 
@@ -996,35 +983,31 @@ class AdminPanel(QWidget):
 
             return teacher_list
 
-        
         # Açılan Derslerin Listesi
         def lesson_list():
             cursor = conn.cursor()
-            cursor.execute(
-                "SELECT ders_kodu, ders_adı FROM \"açılanDersler\""
-            )
+            cursor.execute('SELECT ders_kodu, ders_adı FROM "açılanDersler"')
 
             lesson_list = cursor.fetchall()
             print(lesson_list)
             cursor.close()
-            
+
             return lesson_list
-        
+
         def assign_student_to_teacher(student_id, teacher_id, lesson):
             cursor = conn.cursor()
             query = "SELECT EXISTS (SELECT 1 FROM ogrenci_aldigi_dersler WHERE ders_kodu = %s AND ogrenci_no = %s)"
             cursor.execute(query, (lesson[0], student[0]))
             result = cursor.fetchone()[0]
             cursor.close()
-            
-            if not result :
-                
+
+            if not result:
                 cursor = conn.cursor()
                 query = f"SELECT hoca_sicil_numarası FROM \"açılanDersler_hoca\" WHERE ders_kodu = '{lesson[0]}'"
                 cursor.execute(query)
                 results = cursor.fetchall()
                 results = [result[0] for result in results]
-                
+
                 random.shuffle(results)
                 if len(results) != 0:
                     cursor = conn.cursor()
@@ -1033,9 +1016,10 @@ class AdminPanel(QWidget):
                         (student[0], lesson[0], results[0]),
                     )
                     conn.commit()
-                    print(f"{student[0]} numaralı öğrenci ataması {results[0]} sicil no'lu akademisyene yapıldı")
+                    print(
+                        f"{student[0]} numaralı öğrenci ataması {results[0]} sicil no'lu akademisyene yapıldı"
+                    )
                     cursor.close()
-                
 
         # Öğrenci ve öğretmen listelerini alın (örneğin student_list ve teacher_list olarak).
         student_list = get_student_list_from_database()
@@ -1048,25 +1032,22 @@ class AdminPanel(QWidget):
 
         random.shuffle(student_list)
         random.shuffle(teacher_list)
-        
-    #   Öğrencileri sırayla öğretmenlere atayın.
+
+        #   Öğrencileri sırayla öğretmenlere atayın.
         for i, student in enumerate(student_list):
             for lesson in lesson_list():
                 # Öğrenci ve öğretmen listelerini karıştırın.
-                
+
                 teacher = teacher_list[i % len(teacher_list)]
                 assign_student_to_teacher(student, teacher, lesson)
 
     def not_ortalamasina_gore_atama(self):
         pass
-    
-    
+
     def belirli_derslere_gore_atama(self):
         pass
-    
-    
-    
-    
+
+
 # Öğrenci Paneli
 class StudentPanel(QWidget):
     def __init__(self, ogrenci_no):
@@ -1249,31 +1230,35 @@ class StudentPanel(QWidget):
                     )
             except ValueError:
                 pass
-        
-        for lesson in lessons:     
-                cursor = conn.cursor()
-                cursor.execute(
-                    """
+
+        for lesson in lessons:
+            cursor = conn.cursor()
+            cursor.execute(
+                """
                     INSERT INTO gecmis_donem_dersler (ders_kodu, ders_adı, ders_statusu, ogretim_dili, \"AKTS\")
                     VALUES (%s, %s, %s, %s, %s) """,
-                    (lesson["ders_kodu"], lesson["ders_adi"], lesson["ders_statusu"], lesson["ogretim_dili"], str(lesson["AKTS"])),
-                )
-                cursor.close()
-        
-                cursor = conn.cursor()
-                cursor.execute(
-                    """
+                (
+                    lesson["ders_kodu"],
+                    lesson["ders_adi"],
+                    lesson["ders_statusu"],
+                    lesson["ogretim_dili"],
+                    str(lesson["AKTS"]),
+                ),
+            )
+            cursor.close()
+
+            cursor = conn.cursor()
+            cursor.execute(
+                """
                     INSERT INTO transkript (ogrenci_no, ders_kodu, harf_notu)
                     VALUES (%s, %s, %s) """,
-                    (self.ogrenci_no, lesson["ders_kodu"], lesson["not"]),
-                )
-                cursor.close()
-                
-                
+                (self.ogrenci_no, lesson["ders_kodu"], lesson["not"]),
+            )
+            cursor.close()
+
         self.transcript_panel = Transcript(lessons)
         self.transcript_panel.show()
 
-        
         self.ders_secim_tablo()
         self.hoca_talep_tablo()
 
@@ -1329,7 +1314,7 @@ class StudentPanel(QWidget):
                     l.append(result[0])
                     l.append(result[1])
                 teacher_list.append(l)
-                
+
             self.lessons_teacher[ders_adi] = teacher_list
 
         max_element_count = 0
@@ -1340,14 +1325,14 @@ class StudentPanel(QWidget):
 
         self.lessonTable.setStyleSheet("color : black; background-color : white")
         self.lessonTable.setRowCount(len(self.lessons_teacher))
-        self.lessonTable.setColumnCount(max_element_count + 1)
+        self.lessonTable.setColumnCount(max_element_count + 2)
 
         labels = ["Ders Adı"]
         for i in range(max_element_count):
             labels.append("Öğretmenler")
-        
+
         labels.append("Talep Gönder")
-        
+
         self.lessonTable.setHorizontalHeaderLabels(labels)
 
         row = 0
@@ -1356,7 +1341,7 @@ class StudentPanel(QWidget):
             self.lessonTable.setItem(row, 0, lesson_item)
             table = "açılanDersler"
             cur = conn.cursor()
-            query = f"SELECT talep_edilebilecek_hoca_sayısı FROM \"{table}\" WHERE ders_adı = %s"
+            query = f'SELECT talep_edilebilecek_hoca_sayısı FROM "{table}" WHERE ders_adı = %s'
             cur.execute(query, (lesson,))
             results = cur.fetchall()
             results = results[0][0]
@@ -1364,29 +1349,57 @@ class StudentPanel(QWidget):
             if len(self.teachers) > 0:
                 self.teachers.append([])
             for col, teacher in enumerate(self.teachers, 1):
-                if col == len(self.teachers)-1:
-                    self.button = QPushButton(self)
-                    self.button.setText("talep gönder")
-                    self.button.setFixedSize(120, 30)
-                    self.button.setStyleSheet("color : white; background-color : brown; border-radius : 5px")
-                    index = row
-                    #self.button.clicked.connect(lambda _, idx=index: self.iptal(results[idx], idx))
-                    self.lessonTable.setCellWidget(row, col, self.button)
-                    
-                elif col > results:
+                if col > results:
                     continue
-                
+
                 elif len(teacher) != 0:
                     print(len(teacher))
                     teacher_combobox = QComboBox()
-                    teacher_combobox.addItems(
-                        [teacher[0] + " " + teacher[1]]
-                    )
+                    teacher_combobox.addItems([teacher[0] + " " + teacher[1]])
                     self.lessonTable.setCellWidget(row, col, teacher_combobox)
+
+            self.button = QPushButton(self)
+            self.button.setText("talep gönder")
+            self.button.setFixedSize(130, 35)
+            self.button.setStyleSheet(
+                "color : white; background-color : brown; border-radius : 5px"
+            )
+            index = row
+            self.button.clicked.connect(lambda _, idx=index: self.talep_gonder(idx))
+            self.lessonTable.setCellWidget(row, max_element_count + 1, self.button)
+
             row += 1
 
         self.lessonTable.setVisible(True)
         self.hoca_talepTable.setVisible(True)
+
+    def talep_gonder(self, row):
+        teachers = list(self.lessons_teacher.values())
+        teachers = [teacher[0] if len(teacher) != 0 else [] for teacher in teachers]
+        row_data = {}
+        string_item = self.lessonTable.item(row, 0)
+        combo_item = self.lessonTable.cellWidget(row, 1)
+
+        if string_item:
+            row_data["Ders Adı"] = string_item.text()
+
+        if combo_item:
+            row_data["Öğretmen"] = teachers[row]
+
+        cursor = conn.cursor()
+        cursor.execute(
+            """
+        INSERT INTO talep_ogrenci (ogrenci_no, ders_isim, hoca_isim, hoca_soy_isim, durum)
+        VALUES (%s, %s, %s, %s, %s)""",
+            (
+                self.ogrenci_no,
+                row_data["Ders Adı"],
+                teachers[row][0],
+                teachers[row][1],
+                "beklemede",
+            ),
+        )
+        cursor.close()
 
     def hoca_talep_tablo(self):
         table = "talep_hoca"
@@ -1460,7 +1473,7 @@ class StudentPanel(QWidget):
         cursor.execute(sql, (sicil_no, ders_kodu, ogrenci_no))
         conn.commit()  # Değişiklikleri veritabanına kaydetmek için commit yapın
         cursor.close()
-        
+
         self.hoca_talep_tablo()
 
     # Transkript panelini gösterip gizleme
@@ -1548,9 +1561,9 @@ class Ogrenci_Talep_Gecmisi(QWidget):
         self.lblTitle.setFont(self.myFont)
         self.lblTitle.setStyleSheet("color : white")
         self.lblTitle.setFixedSize(300, 30)
-        
+
         self.init()
-        
+
     def init(self):
         self.table = QTableWidget(self)
         self.table.move(50, 50)
@@ -1564,7 +1577,8 @@ class Ogrenci_Talep_Gecmisi(QWidget):
         cur.execute(query)
         results = cur.fetchall()
         results = [
-            [result[0], result[1] + " " + result[2], result[3], result[4]] for result in results
+            [result[0], result[1] + " " + result[2], result[3], result[4]]
+            for result in results
         ]
         print(results[0])
         cur.close()
@@ -1576,9 +1590,13 @@ class Ogrenci_Talep_Gecmisi(QWidget):
                     self.button = QPushButton(self)
                     self.button.setText("geri çek")
                     self.button.setFixedSize(143, 68)
-                    self.button.setStyleSheet("color : white; background-color : brown; border-radius : 5px")
+                    self.button.setStyleSheet(
+                        "color : white; background-color : brown; border-radius : 5px"
+                    )
                     index = row_index
-                    self.button.clicked.connect(lambda _, idx=index: self.iptal(results[idx], idx))
+                    self.button.clicked.connect(
+                        lambda _, idx=index: self.iptal(results[idx], idx)
+                    )
                     self.table.setCellWidget(row_index, col_index, self.button)
                 elif col_index != 4:
                     self.table.setItem(
@@ -1594,8 +1612,7 @@ class Ogrenci_Talep_Gecmisi(QWidget):
         cursor.execute(query)
         cursor.close()
         self.table.removeRow(index)
-        
-        
+
 
 class Ogrenci_Mesaj_Gonder(QWidget):
     def __init__(self, ogrenci_no):
@@ -1649,7 +1666,7 @@ class Ogrenci_Mesaj_Gonder(QWidget):
     def setlblText(self):
         self.txtMesaj.setText("")
         self.txtsicil_no.setText("")
-    
+
     def setResultText(self, text):
         self.lblMsgResult.setText(text)
 
@@ -1667,11 +1684,10 @@ class Ogrenci_Mesaj_Gonder(QWidget):
         karakter = karakter[0][0]
         cur.close()
 
-        
         if len(mesaj) <= karakter:
             try:
                 self.setlblText()
-                
+
                 cursor = conn.cursor()
                 cursor.execute(
                     """
@@ -1691,8 +1707,7 @@ class Ogrenci_Mesaj_Gonder(QWidget):
         else:
             self.setResultText(f"Max.: {karakter} - Mesaj: {len(mesaj)}")
             self.lblMsgResult.setVisible(True)
-        
-        
+
 
 class Ogrenci_Gelen_Mesaj(QWidget):
     def __init__(self, ogrenci_no):
@@ -1721,15 +1736,15 @@ class Ogrenci_Gelen_Mesaj(QWidget):
         results = cur.fetchall()
         cur.close()
 
-
         self.table = QTableWidget(self)
         self.table.move(50, 50)
         self.table.setFixedSize(500, 500)
         self.table.setColumnCount(3)
         self.table.setRowCount(len(results))
-        self.table.setHorizontalHeaderLabels(["Mesaj Id", "Gönderen Hoca Sicil No", "Mesaj"])
+        self.table.setHorizontalHeaderLabels(
+            ["Mesaj Id", "Gönderen Hoca Sicil No", "Mesaj"]
+        )
         self.table.setStyleSheet("color : black; background-color : white")
-
 
         for row_index, row_data in enumerate(results):
             for col_index, col_data in enumerate(row_data):
@@ -1829,8 +1844,24 @@ class TeacherPanel(QWidget):
         self.btn_gelen_talep.setStyleSheet(
             "color : black; background-color : white; border-radius: 5px"
         )
-        
-        
+
+        self.myFont.setPointSize(10)
+        self.btnExit = QPushButton(self)
+        self.btnExit.setText("Çıkış")
+        self.btnExit.setFont(self.myFont)
+        self.btnExit.setFixedSize(110, 40)
+        self.btnExit.move(10, 600)
+        self.btnExit.setStyleSheet(
+            "color : black; background-color : white; border-radius: 5px"
+        )
+        self.btnExit.clicked.connect(self.teacher_exit)
+    
+    def teacher_exit(self):
+        self.setVisible(False)
+        self.loginTeacherPanel = LoginPanel("Hoca", 600, "Sicil Numarası")
+        self.teacher_panel = TeacherPanel()
+        self.loginTeacherPanel.btnLogIn.clicked.connect(lambda _, idx=self.teacher_panel, idx1 = self.loginTeacherPanel: login_teacher(idx, idx1))
+        self.loginTeacherPanel.show()
         
     def setlblTitleText(self, text):
         print(text)
@@ -1856,14 +1887,10 @@ class TeacherPanel(QWidget):
         self.gelen_mesaj_panel.show()
 
     def gelen_talepler(self):
-        
         self.gelen_talep_panel = Gelen_Talep_Panel(self.sicil_no)
         self.gelen_talep_panel.show()
-        
-        
-                    
-    
-    
+
+
 class Gelen_Talep_Panel(QWidget):
     def __init__(self, sicil_no):
         super().__init__()
@@ -1884,7 +1911,7 @@ class Gelen_Talep_Panel(QWidget):
         self.lblTitle.setFixedSize(300, 30)
 
         self.init()
-    
+
     def init(self):
         table = "hoca"
         cur = conn.cursor()
@@ -1893,8 +1920,7 @@ class Gelen_Talep_Panel(QWidget):
         results = cur.fetchall()
         results = results[0]
         cur.close()
-        
-        
+
         table = "talep_ogrenci"
         cur = conn.cursor()
         query = f"SELECT ogrenci_no, ders_isim FROM {table} WHERE hoca_isim =  '{results[0]}' AND hoca_soy_isim = '{results[1]}'"
@@ -1902,7 +1928,7 @@ class Gelen_Talep_Panel(QWidget):
 
         results = cur.fetchall()
         cur.close()
-        
+
         self.table = QTableWidget(self)
         self.table.move(50, 50)
         self.table.setFixedSize(500, 500)
@@ -1918,17 +1944,18 @@ class Gelen_Talep_Panel(QWidget):
             row_data = tuple(row_data)
             for col_index, col_data in enumerate(row_data):
                 if col_index == 2:
-                    
                     self.button = QPushButton(self)
                     self.button.setText("Onay")
                     self.button.setFixedSize(125, 40)
                     self.button.setStyleSheet(
                         "color : white; background-color : brown; border-radius: 5px"
                     )
-                    self.button.clicked.connect(lambda _, idx=row_index: self.onay(results[idx], idx))
-                    
+                    self.button.clicked.connect(
+                        lambda _, idx=row_index: self.onay(results[idx], idx)
+                    )
+
                     self.table.setCellWidget(row_index, col_index, self.button)
-                
+
                 elif col_index == 3:
                     self.button = QPushButton(self)
                     self.button.setText("Red")
@@ -1936,20 +1963,21 @@ class Gelen_Talep_Panel(QWidget):
                     self.button.setStyleSheet(
                         "color : white; background-color : brown; border-radius: 5px"
                     )
-                    self.button.clicked.connect(lambda _, idx=row_index: self.red(results[idx], idx))
-                    
+                    self.button.clicked.connect(
+                        lambda _, idx=row_index: self.red(results[idx], idx)
+                    )
+
                     self.table.setCellWidget(row_index, col_index, self.button)
-                    
+
                 else:
                     self.table.setItem(
                         row_index, col_index, QTableWidgetItem(str(col_data))
                     )
 
-    
-    def onay(self,result,index):
+    def onay(self, result, index):
         table = "ogrenci_aldigi_dersler"
         ogrenci_no = result[0]
-        
+
         table = "açılanDersler"
         cur = conn.cursor()
         query = f'SELECT ders_kodu FROM "{table}" WHERE ders_adı = %s'
@@ -1967,16 +1995,15 @@ class Gelen_Talep_Panel(QWidget):
             (ogrenci_no, ders_kodu, self.sicil_no),
         )
         cursor.close()
-        
+
         cursor = conn.cursor()
         query = f"DELETE FROM talep_ogrenci WHERE ogrenci_no = {ogrenci_no} AND ders_isim = '{result[1]}'"
         cursor.execute(query)
         cursor.close()
 
         self.table.removeRow(index)
-    
+
     def red(self, result, index):
-        
         cursor = conn.cursor()
         query = f"DELETE FROM talep_ogrenci WHERE ogrenci_no = {result[0]} AND ders_isim = '{result[1]}'"
         cursor.execute(query)
@@ -2117,7 +2144,6 @@ class Ogrenci_Ders_Ekleme(QWidget):
             "color : black; background-color : white; border-radius: 5px"
         )
         self.btnDersEkle.clicked.connect(self.ogrenci_ders_ekleme)
-
 
     def ogrenci_ders_ekleme(self):
         ogr_no = self.txtOgrNo.text()
@@ -2268,18 +2294,19 @@ class ListStudent2(QWidget):
         self.lblTitle.setFont(self.myFont)
         self.lblTitle.setStyleSheet("color : white")
         self.lblTitle.setFixedSize(300, 30)
-        
+
         table = "hoca"
         cur = conn.cursor()
-        query = f"SELECT isim, soy_isim FROM {table} WHERE sicil_numarası = {self.sicil_no}"
+        query = (
+            f"SELECT isim, soy_isim FROM {table} WHERE sicil_numarası = {self.sicil_no}"
+        )
         cur.execute(query)
         isim = cur.fetchall()
         isim = isim[0]
-        
+
         results = cur.fetchall()
         cur.close()
-        
-        
+
         table = "talep_ogrenci"
         cur = conn.cursor()
         query = f"SELECT ogrenci_no, ders_isim FROM {table} WHERE hoca_isim = '{isim[0]}' AND hoca_soy_isim = '{isim[1]}'"
@@ -2411,7 +2438,7 @@ class Hoca_Mesaj_Gonder(QWidget):
     def setlblText(self):
         self.txtMesaj.setText("")
         self.txtogr_no.setText("")
-        
+
     def setResultText(self, text):
         self.lblMsgResult.setText(text)
 
@@ -2429,11 +2456,10 @@ class Hoca_Mesaj_Gonder(QWidget):
         karakter = karakter[0][0]
         cur.close()
 
-        
         if len(mesaj) <= karakter:
             try:
                 self.setlblText()
-                
+
                 cursor = conn.cursor()
                 cursor.execute(
                     """
@@ -2453,7 +2479,7 @@ class Hoca_Mesaj_Gonder(QWidget):
         else:
             self.setResultText(f"Max.: {karakter} - Mesaj: {len(mesaj)}")
             self.lblMsgResult.setVisible(True)
-        
+
 
 class Hoca_Gelen_Mesaj(QWidget):
     def __init__(self, sicil_no):
@@ -2583,9 +2609,9 @@ loginTeacherPanel.show()
 loginAdminPanel.show()
 
 
-teacher_panel = TeacherPanel()
-admin_panel = AdminPanel()
 
+admin_panel = AdminPanel()
+teacher_panel = TeacherPanel()
 
 def filter_teacher(filter_set):
     loginStudentPanel.student_panel.ders_secim_tablo(filter_set)
@@ -2606,25 +2632,34 @@ def login_check(panel, table, txtUserName):
     return userName, results
 
 
-def login_teacher():
-    username, results = login_check(loginTeacherPanel, "hoca", "sicil_numarası")
-    teacher_panel.sicil_no = username
+def login_teacher(panel=None, loginPanel=None):
+    global teacher_panel
+    global loginTeacherPanel
+    teacher_panel1 = teacher_panel
+    loginTeacherPanel1 = loginTeacherPanel
+    if panel:
+        teacher_panel1 = panel
+    if loginPanel:
+        loginTeacherPanel1 = loginPanel
+    username, results = login_check(loginTeacherPanel1, "hoca", "sicil_numarası")
+    
+    teacher_panel1.sicil_no = username
 
     if results:
         teacher_name = "Hoca Paneli - " + results[0][0] + " " + results[0][1]
     if len(results):
-        teacher_panel.setVisible(True)
-        t = threading.Thread(target=teacher_panel.setlblTitleText, args=(teacher_name,))
+        teacher_panel1.setVisible(True)
+        t = threading.Thread(target=teacher_panel1.setlblTitleText, args=(teacher_name,))
         t.start()
         t.join()
-        teacher_panel.show()
-        loginTeacherPanel.setVisible(False)
+        teacher_panel1.show()
+        loginTeacherPanel1.setVisible(False)
 
     else:
-        loginTeacherPanel.lblIncorrect.setVisible(True)
+        loginTeacherPanel1.lblIncorrect.setVisible(True)
 
-        loginTeacherPanel.txtUserName.setText("")
-        loginTeacherPanel.txtPassword.setText("")
+        loginTeacherPanel1.txtUserName.setText("")
+        loginTeacherPanel1.txtPassword.setText("")
 
 
 def login_admin():
@@ -2643,6 +2678,7 @@ def login_admin():
 
         loginAdminPanel.txtUserName.setText("")
         loginAdminPanel.txtPassword.setText("")
+
 
 
 loginTeacherPanel.btnLogIn.clicked.connect(login_teacher)
